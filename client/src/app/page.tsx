@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import CourseCard from '@/components/CourseCard';
+import VideoPreviewModal from '@/components/VideoPreviewModal';
+import { Course, SEED_COURSES } from '@/data/coursesData';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import {
@@ -104,13 +107,29 @@ const fadeUp = {
 
 export default function Home() {
   const { api } = useAuth();
-  const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>(SEED_COURSES.slice(0, 8));
+  const [previewCourse, setPreviewCourse] = useState<Course | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     api.get('/courses').then(res => {
-      setFeaturedCourses(res.data.slice(0, 8));
-    }).catch(() => {});
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        // Map backend courses
+        const mapped = res.data.slice(0, 8).map((c: any) => ({
+          ...c,
+          id: String(c._id || c.id),
+          _id: String(c._id || c.id),
+          title: c.courseTitle || c.title,
+          courseTitle: c.courseTitle || c.title,
+          subtitle: c.courseDescription || c.subtitle,
+          thumbnailUrl: c.courseThumbnail || c.thumbnailUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800',
+          previewVideoUrl: c.previewVideoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        }));
+        setFeaturedCourses(mapped);
+      }
+    }).catch(() => {
+      // Fallback stays in place
+    });
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -319,94 +338,15 @@ export default function Home() {
             </Link>
           </div>
 
-          {featuredCourses.length === 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="course-card animate-pulse">
-                  <div className="bg-slate-200 aspect-video w-full" />
-                  <div className="course-card-body">
-                    <div className="h-3 bg-slate-200 rounded w-1/3" />
-                    <div className="h-4 bg-slate-200 rounded w-full" />
-                    <div className="h-4 bg-slate-200 rounded w-3/4" />
-                    <div className="h-3 bg-slate-200 rounded w-1/2" />
-                    <div className="h-8 bg-slate-200 rounded mt-2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredCourses.map((course, i) => {
-                const avgRating = course.ratings?.length
-                  ? (course.ratings.reduce((a: number, r: any) => a + (Number(r.rating) || 0), 0) / course.ratings.length)
-                  : 4.8;
-                const finalPrice = (Number(course.coursePrice) || 0) * (1 - (Number(course.discount) || 0) / 100);
-                const lessonCount = course.lessons?.length || 0;
-
-                return (
-                  <motion.div
-                    key={course._id || course.id}
-                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: '-50px' }}
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    transition={{ 
-                      type: 'spring', 
-                      stiffness: 90, 
-                      damping: 15,
-                      default: { delay: i * 0.06 }
-                    }}
-                  >
-                    <Link href={`/courses/${course._id || course.id}`} className="course-card glow-hover group block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                      <div className="relative overflow-hidden aspect-video bg-slate-100 dark:bg-slate-800">
-                        <img
-                          src={course.courseThumbnail || `https://images.unsplash.com/photo-1587620962725-abab19836100?w=400&h=225&fit=crop`}
-                          alt={course.courseTitle}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1587620962725-abab19836100?w=400&h=225&fit=crop';
-                          }}
-                        />
-                        {course.discount > 0 && (
-                          <div className="absolute top-2 left-2 bg-red-500 text-white font-bold text-[10px] px-2 py-0.5 rounded">
-                            -{course.discount}% OFF
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4 space-y-2 flex flex-col h-full">
-                        {course.category && (
-                          <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">{course.category}</span>
-                        )}
-                        <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">
-                          {course.courseTitle}
-                        </h3>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{lessonCount} lessons</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-amber-600 dark:text-amber-400 font-bold text-xs">{Number(avgRating).toFixed(1)}</span>
-                          <StarRating rating={avgRating} />
-                          <span className="text-xs text-slate-400 dark:text-slate-550">({course.ratings?.length || 0})</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100 dark:border-slate-800">
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="font-bold text-slate-900 dark:text-white text-base">${Number(finalPrice).toFixed(2)}</span>
-                            {course.discount > 0 && (
-                              <span className="text-xs text-slate-400 line-through">${Number(course.coursePrice).toFixed(2)}</span>
-                            )}
-                          </div>
-                          <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:underline flex items-center gap-0.5">
-                            Enroll <ArrowRight className="w-3 h-3" />
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredCourses.map((course) => (
+              <CourseCard
+                key={course.id || course._id}
+                course={course}
+                onPreview={(selected) => setPreviewCourse(selected)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -588,6 +528,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Interactive Video Preview Modal */}
+      <VideoPreviewModal
+        course={previewCourse}
+        isOpen={Boolean(previewCourse)}
+        onClose={() => setPreviewCourse(null)}
+      />
     </div>
   );
 }

@@ -246,7 +246,7 @@ export default function Navbar() {
                   Log In
                 </Link>
                 <Link
-                  href="/auth/login"
+                  href="/auth/register"
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   Sign Up Free
@@ -295,11 +295,15 @@ export default function Navbar() {
                 <Link href={getDashboardHref()} onClick={() => setMenuOpen(false)}
                   className="block px-4 py-3 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40">My Dashboard</Link>
                 <button onClick={() => { setMenuOpen(false); logout(); }}
-                  className="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20">Sign Out</button>
+                  className="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer">Sign Out</button>
               </>
             ) : (
-              <Link href="/auth/login" onClick={() => setMenuOpen(false)}
-                className="block px-4 py-3 rounded-lg text-sm font-medium text-white bg-indigo-600 text-center">Sign In / Register</Link>
+              <div className="pt-2 flex flex-col gap-2">
+                <Link href="/auth/login" onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-center">Log In</Link>
+                <Link href="/auth/register" onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-indigo-600 text-center">Sign Up Free</Link>
+              </div>
             )}
           </div>
         </div>
