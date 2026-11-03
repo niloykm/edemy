@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Star, Clock, Users, Play, Heart, Sparkles, BookOpen, Video, MapPin } from 'lucide-react';
-import { Course } from '@/data/coursesData';
+import { Star, Clock, Users, Play, Heart, Sparkles, BookOpen, Video, MapPin, Download } from 'lucide-react';
+import { Course, isMediaLesson } from '@/data/coursesData';
 import { useAuth } from '@/context/AuthContext';
 
 interface CourseCardProps {
@@ -188,6 +188,11 @@ export default function CourseCard({ course, onPreview }: CourseCardProps) {
               <BookOpen className="w-3 h-3 text-slate-400" />
               {lessonsCount} lessons
             </span>
+            {course.lessons?.some(l => !isMediaLesson(l.type || l.lessonType)) && (
+              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/20" title="Includes downloadable files and blueprints">
+                <Download className="w-2.5 h-2.5" /> Files
+              </span>
+            )}
           </div>
         </div>
 

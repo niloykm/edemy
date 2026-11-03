@@ -56,6 +56,27 @@ export class Lesson {
   @Column({ type: 'text', nullable: true })
   videoUrl: string;
 
+  @Column({ type: 'text', nullable: true })
+  audioUrl: string;
+
+  @Column({ type: 'text', nullable: true })
+  imageUrl: string;
+
+  @Column({ type: 'text', nullable: true })
+  docUrl: string;
+
+  @Column({ type: 'text', nullable: true })
+  fileUrl: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  fileName: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fileSize: string;
+
+  @Column({ type: 'text', nullable: true })
+  summary: string;
+
   @Column({ type: 'timestamptz', nullable: true })
   timeSchedule: Date;
 

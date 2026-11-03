@@ -705,8 +705,12 @@ export default function AdminDashboard() {
                                     onChange={(e) => handleLessonChange(idx, 'lessonType', e.target.value)}
                                     className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-white focus:outline-none"
                                   >
-                                    <option value="video">Video Class</option>
-                                    <option value="pdf">Reference PDF</option>
+                                    <option value="video">Video Class (Media)</option>
+                                    <option value="audio">Audio Deep-Dive (Media)</option>
+                                    <option value="image">Architecture Diagram / Image (Downloadable)</option>
+                                    <option value="pdf">Reference PDF (Downloadable)</option>
+                                    <option value="doc">Engineering Doc / Spec (Downloadable)</option>
+                                    <option value="file">Code Archive / Zip (Downloadable)</option>
                                     <option value="link">Web Resource Link</option>
                                     <option value="online">Live Online Session (Meet)</option>
                                     <option value="offline">In-person Classroom (Workshop)</option>

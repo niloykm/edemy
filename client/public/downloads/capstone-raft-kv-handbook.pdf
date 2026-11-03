@@ -1,0 +1,29 @@
+%PDF-1.4
+1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
+2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
+3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources <</Font <</F1 <</Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold>> /F2 <</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>>>>> /Contents 4 0 R>> endobj
+4 0 obj <</Length 915>> stream
+BT /F1 18 Tf 50 740 Td (Ndemy Capstone: Resilient Raft Key-Value Store) Tj ET
+BT /F2 11 Tf 50 715 Td (Specification, Test Harness, Network Partition Matrix & Grading Rubric) Tj ET
+BT /F2 9 Tf 50 695 Td (Published by Ndemy Distributed Systems Academy | Staff Specialization) Tj ET
+BT /F1 13 Tf 50 660 Td (1. Objective & Requirements) Tj ET
+BT /F2 10 Tf 60 638 Td (Implement Raft Consensus State Machine in Go or Rust) Tj ET
+BT /F2 10 Tf 60 620 Td (Support dynamic cluster membership changes [Joint Consensus]) Tj ET
+BT /F2 10 Tf 60 602 Td (Pass the Jepsen fault-injection linearizability suite) Tj ET
+BT /F1 13 Tf 50 572 Td (2. Fault Scenarios Tested) Tj ET
+BT /F2 10 Tf 60 550 Td (Split-Brain isolation: 2 nodes separated from 3 nodes) Tj ET
+BT /F2 10 Tf 60 532 Td (Cascading leader crash during uncommitted log replication) Tj ET
+BT /F2 10 Tf 60 514 Td (Asymmetric network delays and packet drop simulation) Tj ET
+
+endstream
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+trailer <</Size 5 /Root 1 0 R>>
+startxref
+1304
+%%EOF

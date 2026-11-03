@@ -1,6 +1,38 @@
-import { Course, SEED_COURSES, SEED_LIVE_CLASSES, SEED_WORKSHOPS, ALL_COURSES, getCourseByIdOrSlug } from './coursesData';
+import { Course, Lesson, SEED_COURSES, SEED_LIVE_CLASSES, SEED_WORKSHOPS, ALL_COURSES, getCourseByIdOrSlug } from './coursesData';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://lms-backend-chi-orcin.vercel.app/api';
+
+function mapLesson(item: any, idx: number, fallbackPreview?: string): Lesson {
+  const type = item.type || item.lessonType || 'video';
+  return {
+    id: String(item.id || item.lessonId || `lesson-${idx}`),
+    lessonId: String(item.lessonId || item.id || `lesson-${idx}`),
+    title: item.title || item.lessonTitle || `Lesson ${idx + 1}`,
+    lessonTitle: item.lessonTitle || item.title || `Lesson ${idx + 1}`,
+    duration: typeof item.duration === 'number' ? `${item.duration} mins` : (item.duration || '15 mins'),
+    durationMinutes: Number(item.durationMinutes || (typeof item.duration === 'number' ? item.duration : 15)),
+    type: type,
+    lessonType: type,
+    isFreePreview: Boolean(item.isFreePreview || idx === 0),
+    videoUrl: item.videoUrl || (type === 'video' ? fallbackPreview : undefined),
+    audioUrl: item.audioUrl,
+    imageUrl: item.imageUrl,
+    imageCaption: item.imageCaption,
+    pdfUrl: item.pdfUrl,
+    docUrl: item.docUrl,
+    fileUrl: item.fileUrl,
+    fileName: item.fileName,
+    fileSize: item.fileSize,
+    fileType: item.fileType,
+    webLink: item.webLink,
+    webLinkDomain: item.webLinkDomain,
+    meetLink: item.meetLink,
+    locationDetails: item.locationDetails,
+    timeSchedule: item.timeSchedule,
+    summary: item.summary,
+    content: item.content
+  };
+}
 
 /**
  * Fetch courses server-side with an aggressive timeout (2.2s).
@@ -67,14 +99,27 @@ export async function getCoursesServerSide(type?: 'video' | 'online' | 'offline'
           },
           tutorNames: item.tutorNames || item.instructor?.name || 'Ndemy Instructor',
           institutionName: item.institutionName || 'Ndemy Platform',
-          curriculum: item.curriculum || [
-            {
-              id: 'mod-1',
-              title: 'Module 1: Getting Started',
-              lessons: item.lessons || []
-            }
-          ],
-          lessons: item.lessons || [],
+          curriculum: item.curriculum && Array.isArray(item.curriculum)
+            ? item.curriculum.map((mod: any, mIdx: number) => ({
+                id: String(mod.id || `mod-${mIdx}`),
+                title: mod.title || `Module ${mIdx + 1}`,
+                description: mod.description,
+                lessons: Array.isArray(mod.lessons)
+                  ? mod.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+                  : []
+              }))
+            : [
+                {
+                  id: 'mod-1',
+                  title: 'Module 1: Getting Started',
+                  lessons: Array.isArray(item.lessons)
+                    ? item.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+                    : []
+                }
+              ],
+          lessons: Array.isArray(item.lessons)
+            ? item.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+            : [],
           enrolledStudents: item.enrolledStudents || [],
           type: item.type || (type && type !== 'all' ? type : 'video'),
           createdAt: item.createdAt || new Date().toISOString()
@@ -151,14 +196,27 @@ export async function getCourseByIdOrSlugServerSide(idOrSlug: string): Promise<C
           },
           tutorNames: item.tutorNames || item.instructor?.name || 'Ndemy Instructor',
           institutionName: item.institutionName || 'Ndemy Platform',
-          curriculum: item.curriculum || [
-            {
-              id: 'mod-1',
-              title: 'Module 1: Getting Started',
-              lessons: item.lessons || []
-            }
-          ],
-          lessons: item.lessons || [],
+          curriculum: item.curriculum && Array.isArray(item.curriculum)
+            ? item.curriculum.map((mod: any, mIdx: number) => ({
+                id: String(mod.id || `mod-${mIdx}`),
+                title: mod.title || `Module ${mIdx + 1}`,
+                description: mod.description,
+                lessons: Array.isArray(mod.lessons)
+                  ? mod.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+                  : []
+              }))
+            : [
+                {
+                  id: 'mod-1',
+                  title: 'Module 1: Getting Started',
+                  lessons: Array.isArray(item.lessons)
+                    ? item.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+                    : []
+                }
+              ],
+          lessons: Array.isArray(item.lessons)
+            ? item.lessons.map((l: any, lIdx: number) => mapLesson(l, lIdx, item.previewVideoUrl))
+            : [],
           enrolledStudents: item.enrolledStudents || [],
           type: item.type || 'video',
           createdAt: item.createdAt || new Date().toISOString()

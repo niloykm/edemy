@@ -1,0 +1,29 @@
+%PDF-1.4
+1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
+2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
+3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources <</Font <</F1 <</Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold>> /F2 <</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>>>>> /Contents 4 0 R>> endobj
+4 0 obj <</Length 964>> stream
+BT /F1 18 Tf 50 740 Td (Apache Kafka Internals: Exactly-Once Processing) Tj ET
+BT /F2 11 Tf 50 715 Td (Idempotent Producers, Transactional Coordinators & Consumer Isolation) Tj ET
+BT /F2 9 Tf 50 695 Td (Published by Ndemy Distributed Systems Academy | Staff Specialization) Tj ET
+BT /F1 13 Tf 50 660 Td (1. Idempotent Producer Mechanics) Tj ET
+BT /F2 10 Tf 60 638 Td (PID [Producer ID] assignment via InitProducerIdRequest) Tj ET
+BT /F2 10 Tf 60 620 Td (Monotonically increasing sequence numbers per TopicPartition) Tj ET
+BT /F2 10 Tf 60 602 Td (Broker deduplication within current producer session window) Tj ET
+BT /F1 13 Tf 50 572 Td (2. Transactional Coordinator Protocol) Tj ET
+BT /F2 10 Tf 60 550 Td (Two-phase commit over internal __transaction_state topic) Tj ET
+BT /F2 10 Tf 60 532 Td (Control markers [COMMIT / ABORT] appended directly to partition log) Tj ET
+BT /F2 10 Tf 60 514 Td (Consumer read_committed isolation filters non-committed batches) Tj ET
+
+endstream
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+trailer <</Size 5 /Root 1 0 R>>
+startxref
+1353
+%%EOF

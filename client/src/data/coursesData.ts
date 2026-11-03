@@ -7,6 +7,8 @@ export interface Instructor {
   company?: string;
 }
 
+export type LessonType = 'video' | 'online' | 'offline' | 'pdf' | 'link' | 'audio' | 'image' | 'doc' | 'file';
+
 export interface Lesson {
   id: string;
   lessonId: string;
@@ -14,15 +16,102 @@ export interface Lesson {
   lessonTitle: string;
   duration: string;
   durationMinutes: number;
-  type: 'video' | 'online' | 'offline' | 'pdf' | 'link';
-  lessonType: 'video' | 'online' | 'offline' | 'pdf' | 'link';
+  type: LessonType;
+  lessonType: LessonType;
   isFreePreview: boolean;
   videoUrl?: string;
+  audioUrl?: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  pdfUrl?: string;
+  docUrl?: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: string;
+  fileType?: string;
+  webLink?: string;
+  webLinkDomain?: string;
   meetLink?: string;
   locationDetails?: string;
   timeSchedule?: string;
-  pdfUrl?: string;
-  webLink?: string;
+  summary?: string;
+  content?: string;
+}
+
+export function isMediaLesson(type?: string): boolean {
+  if (!type) return true;
+  return type === 'video' || type === 'audio';
+}
+
+export function isDownloadableLesson(lesson: Lesson): boolean {
+  const type = lesson.type || lesson.lessonType;
+  return !isMediaLesson(type) && (
+    type === 'pdf' || type === 'image' || type === 'doc' || type === 'file' ||
+    Boolean(lesson.pdfUrl || lesson.imageUrl || lesson.docUrl || lesson.fileUrl)
+  );
+}
+
+export function getLessonDownloadInfo(lesson: Lesson): { url: string; fileName: string; fileSize: string; fileType: string } | null {
+  const type = lesson.type || lesson.lessonType;
+  if (isMediaLesson(type)) {
+    return null; // As required: media content is streamed, not downloaded
+  }
+
+  if (lesson.pdfUrl) {
+    return {
+      url: lesson.pdfUrl,
+      fileName: lesson.fileName || 'document.pdf',
+      fileSize: lesson.fileSize || '2.4 MB',
+      fileType: 'PDF Document'
+    };
+  }
+
+  if (lesson.imageUrl) {
+    return {
+      url: lesson.imageUrl,
+      fileName: lesson.fileName || 'blueprint.svg',
+      fileSize: lesson.fileSize || '3.8 MB',
+      fileType: lesson.fileType || 'Architecture Diagram'
+    };
+  }
+
+  if (lesson.docUrl || lesson.fileUrl) {
+    return {
+      url: (lesson.docUrl || lesson.fileUrl)!,
+      fileName: lesson.fileName || 'spec.docx',
+      fileSize: lesson.fileSize || '1.2 MB',
+      fileType: lesson.fileType || 'Engineering Doc'
+    };
+  }
+
+  if (type === 'pdf') {
+    return {
+      url: '/downloads/distributed-systems-staff-cheatsheet.pdf',
+      fileName: lesson.fileName || `${lesson.title.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`,
+      fileSize: lesson.fileSize || '2.4 MB',
+      fileType: 'PDF Document'
+    };
+  }
+
+  if (type === 'image') {
+    return {
+      url: '/downloads/raft-consensus-blueprint.svg',
+      fileName: lesson.fileName || `${lesson.title.replace(/[^a-zA-Z0-9_-]/g, '_')}.svg`,
+      fileSize: lesson.fileSize || '3.8 MB',
+      fileType: 'Architecture Diagram'
+    };
+  }
+
+  if (type === 'doc' || type === 'file') {
+    return {
+      url: '/downloads/uber-scale-geospatial-h3-spec.docx',
+      fileName: lesson.fileName || `${lesson.title.replace(/[^a-zA-Z0-9_-]/g, '_')}.docx`,
+      fileSize: lesson.fileSize || '1.2 MB',
+      fileType: lesson.fileType || 'Document'
+    };
+  }
+
+  return null;
 }
 
 export interface CurriculumModule {
@@ -617,41 +706,54 @@ export const SEED_COURSES: Course[] = [
             type: 'video',
             lessonType: 'video',
             isFreePreview: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+            summary: 'Deconstruct theoretical CAP boundaries vs real datacenter latency numbers and PACELC trade-offs under network partitions.'
           },
           {
             id: 'ds-2',
             lessonId: 'ds-2',
-            title: 'Raft Consensus Protocol Step-by-Step Visualization',
-            lessonTitle: 'Raft Consensus Protocol Step-by-Step Visualization',
-            duration: '25:40',
-            durationMinutes: 26,
-            type: 'video',
-            lessonType: 'video',
+            title: 'Raft Consensus State Machine Architecture Blueprint',
+            lessonTitle: 'Raft Consensus State Machine Architecture Blueprint',
+            duration: '15 mins',
+            durationMinutes: 15,
+            type: 'image',
+            lessonType: 'image',
             isFreePreview: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+            imageUrl: '/downloads/raft-consensus-blueprint.svg',
+            fileName: 'raft-consensus-blueprint.svg',
+            fileSize: '4.9 KB',
+            fileType: 'SVG Vector Architecture Blueprint',
+            imageCaption: 'Complete Raft cluster topology & state machine transition diagram: Leader heartbeats, Follower election timeouts, and Candidate voting quorum.',
+            summary: 'High-resolution downloadable system diagram illustrating the exact invariants and state transitions of the Raft consensus algorithm.'
           },
           {
             id: 'ds-3',
             lessonId: 'ds-3',
-            title: 'Vector Clocks, Lamport Timestamps & Causality Tracking',
-            lessonTitle: 'Vector Clocks, Lamport Timestamps & Causality Tracking',
+            title: 'Audio Deep-Dive: Staff Engineer Roundtable on Raft vs Multi-Paxos',
+            lessonTitle: 'Audio Deep-Dive: Staff Engineer Roundtable on Raft vs Multi-Paxos',
             duration: '22:15',
             durationMinutes: 22,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            type: 'audio',
+            lessonType: 'audio',
+            isFreePreview: true,
+            audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            summary: 'Elena Rostova and Nathan Drake dissect production war stories: why Raft won developer adoption, log compaction nuances, and handling asymmetric network partitions.'
           },
           {
             id: 'ds-4',
             lessonId: 'ds-4',
-            title: 'Distributed Transactions: 2PC vs Saga Orchestration',
-            lessonTitle: 'Distributed Transactions: 2PC vs Saga Orchestration',
-            duration: '31:00',
-            durationMinutes: 31,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Distributed Transactions: 2PC vs Saga Orchestration Specification',
+            lessonTitle: 'Distributed Transactions: 2PC vs Saga Orchestration Specification',
+            duration: '25 mins',
+            durationMinutes: 25,
+            type: 'doc',
+            lessonType: 'doc',
+            isFreePreview: true,
+            docUrl: '/downloads/distributed-locking-specification.docx',
+            fileName: 'distributed-locking-specification.docx',
+            fileSize: '1.2 MB',
+            fileType: 'Word Document (.docx)',
+            summary: 'Formal engineering specification covering Two-Phase Commit coordinator failover, dual-write prevention, compensating saga actions, and idempotency keys.'
           }
         ]
       },
@@ -669,29 +771,39 @@ export const SEED_COURSES: Course[] = [
             durationMinutes: 29,
             type: 'video',
             lessonType: 'video',
-            isFreePreview: false
+            isFreePreview: false,
+            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+            summary: 'Deep-dive into page cache zero-copy reads, sequential disk writes, partition leadership rebalancing, and consumer group coordinator election.'
           },
           {
             id: 'ds-6',
             lessonId: 'ds-6',
-            title: 'Handling Poison Pills, Dead Letter Queues & Rebalances',
-            lessonTitle: 'Handling Poison Pills, Dead Letter Queues & Rebalances',
-            duration: '20:45',
-            durationMinutes: 21,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Interactive Event Streaming & Broker Failure Simulator',
+            lessonTitle: 'Interactive Event Streaming & Broker Failure Simulator',
+            duration: '30 mins',
+            durationMinutes: 30,
+            type: 'link',
+            lessonType: 'link',
+            isFreePreview: true,
+            webLink: 'https://github.com/niloykm/edemy',
+            webLinkDomain: 'github.com',
+            summary: 'Hands-on interactive simulator lab: inspect real-time message lag, trigger simulated broker crashes, and observe automatic replica recovery.'
           },
           {
             id: 'ds-7',
             lessonId: 'ds-7',
-            title: 'Idempotency and Exactly-Once Semantics in Practice',
-            lessonTitle: 'Idempotency and Exactly-Once Semantics in Practice',
-            duration: '24:10',
-            durationMinutes: 24,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Kafka Failure Modes & Exactly-Once Semantics Whitepaper',
+            lessonTitle: 'Kafka Failure Modes & Exactly-Once Semantics Whitepaper',
+            duration: '20 mins',
+            durationMinutes: 20,
+            type: 'pdf',
+            lessonType: 'pdf',
+            isFreePreview: false,
+            pdfUrl: '/downloads/kafka-exactly-once-whitepaper.pdf',
+            fileName: 'kafka-exactly-once-whitepaper.pdf',
+            fileSize: '1.5 MB',
+            fileType: 'PDF Whitepaper',
+            summary: 'Comprehensive research paper analyzing idempotent producer sequences, transactional marker replication over __transaction_state, and read_committed isolation.'
           },
           {
             id: 'ds-8',
@@ -702,7 +814,9 @@ export const SEED_COURSES: Course[] = [
             durationMinutes: 34,
             type: 'video',
             lessonType: 'video',
-            isFreePreview: false
+            isFreePreview: false,
+            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+            summary: 'Build an immutable event store with projection read-models, snapshotting strategies, and eventual consistency reconcilers.'
           }
         ]
       },
@@ -714,53 +828,68 @@ export const SEED_COURSES: Course[] = [
           {
             id: 'ds-9',
             lessonId: 'ds-9',
-            title: 'Consistent Hashing and Virtual Nodes (Dynamo Architecture)',
-            lessonTitle: 'Consistent Hashing and Virtual Nodes (Dynamo Architecture)',
-            duration: '23:45',
-            durationMinutes: 24,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Dynamo Ring Consistent Hashing & Virtual Nodes Topology Map',
+            lessonTitle: 'Dynamo Ring Consistent Hashing & Virtual Nodes Topology Map',
+            duration: '20 mins',
+            durationMinutes: 20,
+            type: 'image',
+            lessonType: 'image',
+            isFreePreview: false,
+            imageUrl: '/downloads/dynamo-ring-topology.svg',
+            fileName: 'dynamo-ring-topology.svg',
+            fileSize: '1.8 KB',
+            fileType: 'SVG Topology Blueprint',
+            imageCaption: 'Token ring partition map: 256 virtual nodes per physical host, sloppy quorum replication (N=3, R=2, W=2), and hinted handoff routing.',
+            summary: 'Visual architecture blueprint demonstrating how Amazon Dynamo and Apache Cassandra achieve linear horizontal scalability without single points of failure.'
           },
           {
             id: 'ds-10',
             lessonId: 'ds-10',
-            title: 'Distributed Locking with Redis (Redlock) and etcd',
-            lessonTitle: 'Distributed Locking with Redis (Redlock) and etcd',
+            title: 'Podcast: Mitigating Cache Stampedes & Distributed Thundering Herds',
+            lessonTitle: 'Podcast: Mitigating Cache Stampedes & Distributed Thundering Herds',
             duration: '21:30',
             durationMinutes: 22,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            type: 'audio',
+            lessonType: 'audio',
+            isFreePreview: false,
+            audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            summary: 'Field war stories on singleflight request collapsing, probabilistic early expiration (XFetch algorithm), and cache-aside vs write-through benchmarking.'
           },
           {
             id: 'ds-11',
             lessonId: 'ds-11',
-            title: 'Mitigating Cache Stampedes and Thundering Herds',
-            lessonTitle: 'Mitigating Cache Stampedes and Thundering Herds',
-            duration: '19:15',
-            durationMinutes: 19,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'GitHub Starter Repo: Production-Grade Raft Consensus in Go',
+            lessonTitle: 'GitHub Starter Repo: Production-Grade Raft Consensus in Go',
+            duration: '45 mins',
+            durationMinutes: 45,
+            type: 'link',
+            lessonType: 'link',
+            isFreePreview: false,
+            webLink: 'https://github.com/niloykm/edemy',
+            webLinkDomain: 'github.com',
+            summary: 'Official course starter repository with unit test harness, election timers, and network fault injector for Raft candidate voting.'
           },
           {
             id: 'ds-12',
             lessonId: 'ds-12',
-            title: 'System Design Interview Cheatsheet (Staff Level)',
-            lessonTitle: 'System Design Interview Cheatsheet (Staff Level)',
-            duration: '15:00',
+            title: 'System Design Interview Cheatsheet & Formulas (Staff Level)',
+            lessonTitle: 'System Design Interview Cheatsheet & Formulas (Staff Level)',
+            duration: '15 mins',
             durationMinutes: 15,
             type: 'pdf',
             lessonType: 'pdf',
-            isFreePreview: false,
-            pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+            isFreePreview: true,
+            pdfUrl: '/downloads/distributed-systems-staff-cheatsheet.pdf',
+            fileName: 'distributed-systems-staff-cheatsheet.pdf',
+            fileSize: '2.4 MB',
+            fileType: 'PDF Cheatsheet & Formulas',
+            summary: 'Essential 18-page reference sheet: Latency numbers every engineer should know, strict quorum calculations (R+W > N), storage IOPS limits, and PACELC tables.'
           }
         ]
       },
       {
         id: 'mod-4',
-        title: 'Module 4: Real-World Case Studies',
+        title: 'Module 4: Real-World Case Studies & Field Guides',
         description: 'Dissecting architectures: Uber Dispatch, Netflix CDN, Stripe Payments.',
         lessons: [
           {
@@ -772,40 +901,58 @@ export const SEED_COURSES: Course[] = [
             durationMinutes: 38,
             type: 'video',
             lessonType: 'video',
-            isFreePreview: false
+            isFreePreview: false,
+            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+            summary: 'Architecting ultra-low latency real-time dispatching: driver heartbeat ingestion, Ringpop peer-to-peer gossip protocol, and geospatial indexing.'
           },
           {
             id: 'ds-14',
             lessonId: 'ds-14',
-            title: 'Case Study: Real-Time Financial Ledger at Stripe',
-            lessonTitle: 'Case Study: Real-Time Financial Ledger at Stripe',
-            duration: '35:20',
-            durationMinutes: 35,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Uber-Scale Geospatial H3 Indexing & Dispatch Architecture Spec',
+            lessonTitle: 'Uber-Scale Geospatial H3 Indexing & Dispatch Architecture Spec',
+            duration: '25 mins',
+            durationMinutes: 25,
+            type: 'doc',
+            lessonType: 'doc',
+            isFreePreview: false,
+            docUrl: '/downloads/uber-scale-geospatial-h3-spec.docx',
+            fileName: 'uber-scale-geospatial-h3-spec.docx',
+            fileSize: '1.1 MB',
+            fileType: 'Engineering Design Doc (.docx)',
+            summary: 'Production system design specification on hierarchical hexagonal spatial indexing (H3), k-ring radius queries, and partitioned driver dispatch caches.'
           },
           {
             id: 'ds-15',
             lessonId: 'ds-15',
-            title: 'Chaos Engineering: Simulating Network Partitions with Toxiproxy',
-            lessonTitle: 'Chaos Engineering: Simulating Network Partitions with Toxiproxy',
-            duration: '29:10',
-            durationMinutes: 29,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Netflix Global Open Connect Appliance & CDN Flowchart',
+            lessonTitle: 'Netflix Global Open Connect Appliance & CDN Flowchart',
+            duration: '20 mins',
+            durationMinutes: 20,
+            type: 'image',
+            lessonType: 'image',
+            isFreePreview: false,
+            imageUrl: '/downloads/netflix-open-connect-cdn.svg',
+            fileName: 'netflix-open-connect-cdn.svg',
+            fileSize: '1.5 KB',
+            fileType: 'SVG Architecture Flowchart',
+            imageCaption: 'Netflix Open Connect CDN flow: Control plane steering manifests, ISP-embedded 100 Gbps flash appliances, and client adaptive bitrate streaming.',
+            summary: 'System flowchart dissecting how Netflix streams over 250 petabytes per day through custom ISP-peered storage appliances.'
           },
           {
             id: 'ds-16',
             lessonId: 'ds-16',
-            title: 'Mock Interview: Designing Global Collaborative Docs (Figma/Google Docs)',
-            lessonTitle: 'Mock Interview: Designing Global Collaborative Docs (Figma/Google Docs)',
-            duration: '48:00',
-            durationMinutes: 48,
-            type: 'video',
-            lessonType: 'video',
-            isFreePreview: false
+            title: 'Capstone Project Bundle: Resilient Raft Key-Value Store Kit',
+            lessonTitle: 'Capstone Project Bundle: Resilient Raft Key-Value Store Kit',
+            duration: '60 mins',
+            durationMinutes: 60,
+            type: 'file',
+            lessonType: 'file',
+            isFreePreview: false,
+            fileUrl: '/downloads/raft-kv-starter-repo.zip',
+            fileName: 'raft-kv-starter-repo.zip',
+            fileSize: '896 Bytes',
+            fileType: 'ZIP Archive',
+            summary: 'Complete downloadable capstone starter repository including Go/Rust boilerplate, partition test harness, configuration fixtures, and Jepsen test suite.'
           }
         ]
       }
@@ -3692,9 +3839,12 @@ function populateLessons(list: Course[]): Course[] {
     const flatLessons: Lesson[] = [];
     c.curriculum.forEach(mod => {
       mod.lessons.forEach(l => {
+        const isVideo = l.type === 'video' || l.lessonType === 'video';
         flatLessons.push({
           ...l,
-          videoUrl: l.videoUrl || c.previewVideoUrl
+          type: l.type || l.lessonType || 'video',
+          lessonType: l.lessonType || l.type || 'video',
+          videoUrl: l.videoUrl || (isVideo ? c.previewVideoUrl : undefined)
         });
       });
     });

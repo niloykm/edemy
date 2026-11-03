@@ -297,8 +297,12 @@ export default function CreateCoursePage() {
                         onChange={(e) => handleLessonChange(idx, 'lessonType', e.target.value)}
                         className="w-full bg-white border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none"
                       >
-                        <option value="video">Video Class</option>
-                        <option value="pdf">Reference PDF</option>
+                        <option value="video">Video Class (Media)</option>
+                        <option value="audio">Audio Deep-Dive (Media)</option>
+                        <option value="image">Architecture Diagram / Image (Downloadable)</option>
+                        <option value="pdf">Reference PDF (Downloadable)</option>
+                        <option value="doc">Engineering Doc / Spec (Downloadable)</option>
+                        <option value="file">Code Archive / Zip (Downloadable)</option>
                         <option value="link">Web Resource Link</option>
                         <option value="online">Live Online Session (Meet)</option>
                         <option value="offline">In-person Classroom (Workshop)</option>
@@ -361,6 +365,87 @@ export default function CreateCoursePage() {
                             {uploadingVideoId === lesson.lessonId ? 'Uploading...' : 'Upload Video File'}
                           </label>
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {lesson.lessonType === 'audio' && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">Audio MP3 Stream URL (Media)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="https://example.com/lecture.mp3"
+                          value={lesson.audioUrl || ''}
+                          onChange={(e) => handleLessonChange(idx, 'audioUrl', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">Discussion Takeaways / Summary</label>
+                        <input
+                          type="text"
+                          placeholder="Key architectural discussion points..."
+                          value={lesson.summary || ''}
+                          onChange={(e) => handleLessonChange(idx, 'summary', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {lesson.lessonType === 'image' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">Diagram / Image URL (Downloadable)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="https://example.com/diagram.svg"
+                          value={lesson.imageUrl || ''}
+                          onChange={(e) => handleLessonChange(idx, 'imageUrl', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">File Name & Size</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. raft-architecture.svg (3.8 MB)"
+                          value={lesson.fileName || ''}
+                          onChange={(e) => handleLessonChange(idx, 'fileName', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {(lesson.lessonType === 'doc' || lesson.lessonType === 'file') && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">Document / Archive URL (Downloadable)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="https://example.com/spec.docx or .zip"
+                          value={lesson.docUrl || lesson.fileUrl || ''}
+                          onChange={(e) => {
+                            handleLessonChange(idx, 'docUrl', e.target.value);
+                            handleLessonChange(idx, 'fileUrl', e.target.value);
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">File Name & Size</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. system-spec.docx (1.2 MB)"
+                          value={lesson.fileName || ''}
+                          onChange={(e) => handleLessonChange(idx, 'fileName', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs focus:outline-none"
+                        />
                       </div>
                     </div>
                   )}

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a; font-family:system-ui, -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="leaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#3730a3"/>
+    </linearGradient>
+    <linearGradient id="candidateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="followerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Title & Header -->
+  <text x="60" y="60" fill="#f8fafc" font-size="26" font-weight="bold">Raft Consensus State Machine Architecture</text>
+  <text x="60" y="90" fill="#94a3b8" font-size="14">Ndemy Distributed Systems Blueprint &bull; Author: Elena Rostova &bull; ScaleMesh Labs</text>
+
+  <!-- Leader Node -->
+  <g transform="translate(460, 160)" filter="url(#shadow)">
+    <rect width="280" height="150" rx="16" fill="url(#leaderGrad)" stroke="#818cf8" stroke-width="2"/>
+    <text x="140" y="45" fill="#ffffff" font-size="20" font-weight="bold" text-anchor="middle">LEADER (Node 1)</text>
+    <text x="140" y="75" fill="#e0e7ff" font-size="12" text-anchor="middle">Term: 42 &bull; Log Index: 1,840,291</text>
+    <rect x="30" y="95" width="220" height="35" rx="8" fill="#1e1b4b" fill-opacity="0.6"/>
+    <text x="140" y="117" fill="#a5b4fc" font-size="12" font-weight="bold" text-anchor="middle">Sends AppendEntries Heartbeats</text>
+  </g>
+
+  <!-- Follower Node 2 -->
+  <g transform="translate(120, 480)" filter="url(#shadow)">
+    <rect width="260" height="140" rx="16" fill="url(#followerGrad)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="130" y="40" fill="#ffffff" font-size="18" font-weight="bold" text-anchor="middle">FOLLOWER (Node 2)</text>
+    <text x="130" y="70" fill="#d1fae5" font-size="12" text-anchor="middle">Election Timer: 180ms &bull; Term: 42</text>
+    <rect x="25" y="90" width="210" height="30" rx="6" fill="#064e3b" fill-opacity="0.6"/>
+    <text x="130" y="110" fill="#6ee7b7" font-size="11" text-anchor="middle">Replicates Log &amp; Responds ACK</text>
+  </g>
+
+  <!-- Follower Node 3 -->
+  <g transform="translate(470, 480)" filter="url(#shadow)">
+    <rect width="260" height="140" rx="16" fill="url(#followerGrad)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="130" y="40" fill="#ffffff" font-size="18" font-weight="bold" text-anchor="middle">FOLLOWER (Node 3)</text>
+    <text x="130" y="70" fill="#d1fae5" font-size="12" text-anchor="middle">Election Timer: 240ms &bull; Term: 42</text>
+    <rect x="25" y="90" width="210" height="30" rx="6" fill="#064e3b" fill-opacity="0.6"/>
+    <text x="130" y="110" fill="#6ee7b7" font-size="11" text-anchor="middle">Replicates Log &amp; Responds ACK</text>
+  </g>
+
+  <!-- Candidate Node 4 -->
+  <g transform="translate(820, 480)" filter="url(#shadow)">
+    <rect width="260" height="140" rx="16" fill="url(#candidateGrad)" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="130" y="40" fill="#ffffff" font-size="18" font-weight="bold" text-anchor="middle">CANDIDATE (Node 4)</text>
+    <text x="130" y="70" fill="#fef3c7" font-size="12" text-anchor="middle">Timer Expired &bull; RequestVote Term: 43</text>
+    <rect x="25" y="90" width="210" height="30" rx="6" fill="#78350f" fill-opacity="0.6"/>
+    <text x="130" y="110" fill="#fde68a" font-size="11" text-anchor="middle">Awaiting Quorum Votes (3/5)</text>
+  </g>
+
+  <!-- Connectors -->
+  <line x1="520" y1="310" x2="250" y2="480" stroke="#818cf8" stroke-width="3" stroke-dasharray="6,6"/>
+  <line x1="600" y1="310" x2="600" y2="480" stroke="#818cf8" stroke-width="3" stroke-dasharray="6,6"/>
+  <line x1="680" y1="310" x2="950" y2="480" stroke="#fbbf24" stroke-width="3" stroke-dasharray="6,6"/>
+
+  <!-- Legend & Invariants Footer -->
+  <g transform="translate(60, 680)">
+    <rect width="1080" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="30" y="32" fill="#e2e8f0" font-size="14" font-weight="bold">Raft Safety Invariants Verified by Ndemy:</text>
+    <text x="30" y="58" fill="#94a3b8" font-size="12">1. Election Safety: At most one leader per term &bull; 2. Leader Append-Only: Never overwrites own log &bull; 3. Log Matching: Matching index/term implies identical history &bull; 4. Quorum = (N/2) + 1</text>
+  </g>
+</svg>
