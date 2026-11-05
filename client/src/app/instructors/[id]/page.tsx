@@ -5,8 +5,9 @@ import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
 import { ALL_COURSES } from '@/data/coursesData';
+import CourseCard from '@/components/CourseCard';
 import Link from 'next/link';
-import { Star, Clock, BookOpen, Users, Award, ShieldAlert, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Star, Clock, BookOpen, Users, Award, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 export default function InstructorProfilePage() {
   const { id } = useParams();
@@ -16,7 +17,6 @@ export default function InstructorProfilePage() {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Extract raw tutor ID from path (remove 'educator_' prefix if it exists)
   const educatorId = String(id).replace('educator_', '');
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function InstructorProfilePage() {
         const tutorCourses = coursesRes.data.filter((c: any) => String(c.educator) === educatorId);
         setCourses(tutorCourses.length > 0 ? tutorCourses : ALL_COURSES.slice(0, 3));
       } catch (err) {
-        // Fallback to local instructor from our rich dataset
         const matchingCourse = ALL_COURSES.find(c =>
           c.instructor?.name.toLowerCase().includes(educatorId.toLowerCase()) ||
           c.tutorNames?.toLowerCase().includes(educatorId.toLowerCase())
@@ -53,13 +52,13 @@ export default function InstructorProfilePage() {
       }
     };
     fetchProfileData();
-  }, [educatorId]);
+  }, [educatorId, api]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-center items-center">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 flex flex-col justify-center items-center">
         <Navbar />
-        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 animate-pulse uppercase tracking-wider">
+        <span className="text-xs font-semibold text-neutral-500 font-mono animate-pulse uppercase tracking-wider">
           Loading Instructor Credentials...
         </span>
       </div>
@@ -68,28 +67,27 @@ export default function InstructorProfilePage() {
 
   if (!instructor) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col justify-center items-center gap-4">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 flex flex-col justify-center items-center gap-3">
         <Navbar />
-        <ShieldAlert className="w-12 h-12 text-slate-400" />
-        <p className="text-slate-500 font-bold uppercase tracking-wider">Instructor profile not found.</p>
-        <Link href="/courses" className="btn-secondary">Browse All Courses</Link>
+        <ShieldAlert className="w-8 h-8 text-neutral-400" />
+        <p className="text-neutral-500 font-semibold text-xs uppercase tracking-wider">Instructor profile not found.</p>
+        <Link href="/courses" className="btn-secondary text-xs">Browse All Courses</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-12 pt-24">
-        {/* Back Link */}
-        <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to courses
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 space-y-6">
+        <Link href="/courses" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to courses
         </Link>
 
-        {/* Profile Card */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 md:p-10 shadow-sm flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
-          <div className="w-32 h-32 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-800 flex-shrink-0">
+        {/* Instructor Workstation Profile Card */}
+        <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start">
+          <div className="w-24 h-24 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200 dark:border-neutral-800 flex-shrink-0">
             <img
               src={instructor.imageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${instructor.name}`}
               alt={instructor.name}
@@ -97,84 +95,48 @@ export default function InstructorProfilePage() {
             />
           </div>
 
-          <div className="flex-1 text-center md:text-left space-y-4">
-            <div>
-              <span className="badge badge-primary bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 capitalize text-[10px] font-bold tracking-wider mb-2">
-                Certified {instructor.role}
+          <div className="flex-1 space-y-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">
+                Verified Instructor
               </span>
-              <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{instructor.name}</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{instructor.email}</p>
             </div>
-
-            <p className="text-slate-600 dark:text-slate-350 text-sm leading-relaxed max-w-2xl">
-              Professional instructor dedicated to delivering high-impact knowledge in modern technical fields. Leading live classes, offline hands-on workshops, and hybrid interactive learning syllabus sessions.
+            <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+              {instructor.name}
+            </h1>
+            <p className="text-xs font-medium text-neutral-500">
+              {instructor.role}
+            </p>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl pt-1">
+              {instructor.bio}
             </p>
 
-            <div className="flex flex-wrap gap-6 justify-center md:justify-start pt-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400">
-                <BookOpen className="w-4 h-4 text-indigo-500" />
-                <span>{courses.length} Active Courses</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400">
-                <Award className="w-4 h-4 text-indigo-500" />
-                <span>Standard Verified Partner</span>
-              </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 pt-2 tabular-nums">
+              <span className="flex items-center gap-1 font-semibold text-neutral-800 dark:text-neutral-200">
+                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                {instructor.rating || 4.95} Rating
+              </span>
+              <span>•</span>
+              <span>{(instructor.studentsCount || 14200).toLocaleString()} Practitioners Trained</span>
+              <span>•</span>
+              <span>{courses.length} Published Tracks</span>
             </div>
           </div>
         </div>
 
-        {/* Instructor's Courses */}
-        <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6">Courses by {instructor.name}</h2>
+        {/* Authored Courses */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-200 dark:border-neutral-800">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
+              Authored Specializations ({courses.length})
+            </h2>
+          </div>
 
-          {courses.length === 0 ? (
-            <div className="card p-12 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-              <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 dark:text-slate-400 text-sm">No courses currently scheduled for this instructor.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map(course => {
-                const avgRating = course.ratings?.length
-                  ? (course.ratings.reduce((acc: number, r: any) => acc + (Number(r.rating) || 0), 0) / course.ratings.length).toFixed(1)
-                  : '4.8';
-                const price = Number(course.coursePrice) || 0;
-                const discount = Number(course.discount) || 0;
-                const finalPrice = price * (1 - discount / 100);
-
-                return (
-                  <Link
-                    key={course.id || course._id}
-                    href={`/courses/${course.id || course._id}`}
-                    className="course-card group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden flex flex-col justify-between"
-                  >
-                    <div className="relative aspect-video bg-slate-100 dark:bg-slate-800">
-                      <img
-                        src={course.courseThumbnail || 'https://images.unsplash.com/photo-1587620962725-abab19836100?w=400&h=225&fit=crop'}
-                        alt={course.courseTitle}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1587620962725-abab19836100?w=400&h=225&fit=crop';
-                        }}
-                      />
-                    </div>
-                    <div className="p-4 flex-grow space-y-2">
-                      <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">{course.category}</span>
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2">{course.courseTitle}</h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="font-bold text-slate-700 dark:text-slate-350">{avgRating}</span>
-                      </div>
-                    </div>
-                    <div className="p-4 pt-0 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 mt-2">
-                      <span className="font-extrabold text-slate-900 dark:text-white">${finalPrice.toFixed(2)}</span>
-                      <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold group-hover:underline flex items-center gap-0.5">Learn more <ChevronRight className="w-3.5 h-3.5" /></span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courses.map(c => (
+              <CourseCard key={c.id || c._id} course={c} />
+            ))}
+          </div>
         </div>
       </main>
     </div>

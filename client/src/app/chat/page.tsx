@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
 import { Send, MessageSquare, User, Loader2 } from 'lucide-react';
 
 function ChatContent() {
@@ -21,20 +20,16 @@ function ChatContent() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load contacts
   const loadContacts = async () => {
     try {
       const res = await api.get('/chat/contacts');
       setContacts(res.data);
       
-      // If a specific contact is targeted in the URL query parameters
       const directTarget = targetTutorId || targetRecipientId;
       if (directTarget) {
-        // Fetch direct target profile info
         const targetRes = await api.get(`/users/${directTarget}`);
         const found = res.data.find((c: any) => c._id === directTarget);
         if (!found) {
-          // If not in contact list yet, temporarily push it
           setContacts((prev) => [targetRes.data, ...prev]);
         }
         setActiveContact(targetRes.data);
@@ -54,16 +49,15 @@ function ChatContent() {
     }
   }, [user, targetTutorId, targetRecipientId]);
 
-  // Load message history when active contact changes
   useEffect(() => {
     async function loadHistory() {
       if (!activeContact) return;
       setLoadingMessages(true);
       try {
-        const res = await api.get(`/chat/history?recipientId=${activeContact._id}`);
+        const res = await api.get(`/chat/history/${activeContact._id}`);
         setMessages(res.data);
       } catch (err) {
-        console.error('Failed to load history:', err);
+        console.error('Failed to load chat history:', err);
       } finally {
         setLoadingMessages(false);
       }
@@ -71,7 +65,6 @@ function ChatContent() {
     loadHistory();
   }, [activeContact]);
 
-  // Auto-scroll chat to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -79,152 +72,149 @@ function ChatContent() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!typedMessage.trim() || !activeContact) return;
+    const optimisticMessage = {
+      _id: `temp_${Date.now()}`,
+      sender: user,
+      recipient: activeContact,
+      message: typedMessage,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+    setTypedMessage('');
+
     try {
-      const res = await api.post('/chat', {
-        receiverId: activeContact._id,
-        message: typedMessage,
+      const res = await api.post('/chat/send', {
+        recipientId: activeContact._id,
+        message: optimisticMessage.message,
       });
-      setMessages((prev) => [...prev, res.data]);
-      setTypedMessage('');
-      
-      // Refresh contact list to make sure recipient is on list
-      const exists = contacts.some((c) => c._id === activeContact._id);
-      if (!exists) {
-        await loadContacts();
-      }
+      setMessages(prev => prev.map(m => m._id === optimisticMessage._id ? res.data : m));
     } catch (err) {
       console.error('Failed to send message:', err);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
 
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-8 w-full flex gap-6 h-[calc(100vh-140px)]">
-        
-        {/* Contacts Sidebar */}
-        <div className="w-80 glassmorphic p-4 rounded-lg border border-white/10 flex flex-col gap-4">
-          <h3 className="text-sm font-black uppercase tracking-wider text-neonCyan flex items-center gap-1.5 border-b border-white/5 pb-3">
-            <MessageSquare className="w-4 h-4" /> Message Channels
-          </h3>
-
-          {loadingContacts ? (
-            <div className="text-xs text-gray-500 animate-pulse font-bold uppercase p-4 text-center">
-              Scanning active channels...
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 w-full flex flex-col">
+        <div className="flex-1 bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden flex flex-col md:flex-row min-h-[560px]">
+          {/* Contacts Rail (Left) */}
+          <div className="w-full md:w-72 border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-neutral-50 dark:bg-neutral-900/40">
+            <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                Direct Messaging
+              </h2>
             </div>
-          ) : contacts.length === 0 ? (
-            <p className="text-xs text-gray-500 font-bold uppercase p-4 text-center">No active chats.</p>
-          ) : (
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {contacts.map((contact) => (
-                <button
-                  key={contact._id}
-                  onClick={() => setActiveContact(contact)}
-                  className={`w-full text-left p-3 rounded flex items-center gap-3 border transition-all ${
-                    activeContact?._id === contact._id
-                      ? 'bg-neonCyan/10 border-neonCyan'
-                      : 'bg-white/5 border-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <img
-                    src={contact.imageUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${contact.name}`}
-                    alt=""
-                    className="w-8 h-8 rounded-full border border-white/10"
-                  />
-                  <div className="truncate">
-                    <h4 className="text-xs font-black uppercase text-white truncate">{contact.name}</h4>
-                    <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
-                      {contact.role}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Message View Area */}
-        <div className="flex-1 glassmorphic rounded-lg border border-white/10 flex flex-col overflow-hidden">
-          {activeContact ? (
-            <>
-              {/* Header */}
-              <div className="bg-white/5 border-b border-white/5 p-4 flex items-center gap-3">
-                <img
-                  src={activeContact.imageUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${activeContact.name}`}
-                  alt=""
-                  className="w-10 h-10 rounded-full border border-neonCyan/30"
-                />
-                <div>
-                  <h3 className="text-sm font-black uppercase text-white tracking-wide">{activeContact.name}</h3>
-                  <span className="text-[10px] text-neonCyan font-bold uppercase tracking-wider capitalize">
-                    {activeContact.role} &bull; Online Channel
-                  </span>
+            <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60 text-xs">
+              {loadingContacts ? (
+                <div className="p-4 space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-10 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  ))}
                 </div>
-              </div>
-
-              {/* Message Log */}
-              <div className="flex-grow p-6 overflow-y-auto space-y-4 bg-black/10">
-                {loadingMessages ? (
-                  <div className="flex justify-center items-center h-full text-xs text-gray-500 uppercase font-bold tracking-widest">
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" /> Synching logs...
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="flex justify-center items-center h-full text-xs text-gray-600 uppercase font-bold tracking-widest">
-                    No logs recorded. Send a message to start conversing.
-                  </div>
-                ) : (
-                  messages.map((m) => {
-                    const isOwnMessage = m.senderId === user?._id;
-                    return (
-                      <div
-                        key={m._id}
-                        className={`flex flex-col max-w-[70%] ${isOwnMessage ? 'ml-auto items-end' : 'mr-auto items-start'}`}
-                      >
-                        <div
-                          className={`p-3 rounded text-xs leading-relaxed ${
-                            isOwnMessage
-                              ? 'bg-neonCyan text-black font-semibold rounded-br-none'
-                              : 'bg-white/5 border border-white/10 text-white rounded-bl-none'
-                          }`}
-                        >
-                          {m.message}
-                        </div>
-                        <span className="text-[9px] text-gray-600 mt-1 uppercase tracking-widest">
-                          {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+              ) : contacts.length === 0 ? (
+                <div className="p-6 text-center text-neutral-400">
+                  <p>No chat history.</p>
+                </div>
+              ) : (
+                contacts.map(c => {
+                  const isCurrent = activeContact?._id === c._id;
+                  return (
+                    <button
+                      key={c._id}
+                      onClick={() => setActiveContact(c)}
+                      className={`w-full text-left p-3 flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        isCurrent
+                          ? 'bg-neutral-200/70 dark:bg-neutral-800 font-semibold'
+                          : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/40'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded bg-neutral-300 dark:bg-neutral-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {c.imageUrl ? (
+                          <img src={c.imageUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-4 h-4 text-neutral-600 dark:text-neutral-300" />
+                        )}
                       </div>
-                    );
-                  })
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input Form */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 bg-white/3 flex gap-3">
-                <input
-                  type="text"
-                  required
-                  value={typedMessage}
-                  onChange={(e) => setTypedMessage(e.target.value)}
-                  placeholder="Enter secure message packet..."
-                  className="flex-grow bg-background border border-white/10 rounded px-4 py-2.5 text-xs text-white focus:outline-none focus:border-neonCyan"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2.5 bg-neonCyan text-black font-extrabold uppercase text-xs rounded hover:scale-[1.02] flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  SEND <Send className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col justify-center items-center text-xs text-gray-500 uppercase font-bold tracking-widest">
-              Please establish contact to inspect logs.
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs text-neutral-900 dark:text-neutral-100">{c.name}</p>
+                        <p className="text-[10px] text-neutral-500 uppercase tracking-wider">{c.role}</p>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
+          {/* Chat Window (Right) */}
+          <div className="flex-1 flex flex-col bg-white dark:bg-[#121215]">
+            {activeContact ? (
+              <>
+                <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">{activeContact.name}</span>
+                    <span className="text-[10px] uppercase font-mono text-neutral-400">({activeContact.role})</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                  {loadingMessages ? (
+                    <div className="flex justify-center p-8 text-neutral-400">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-neutral-400 text-xs">
+                      <MessageSquare className="w-6 h-6 mb-2 opacity-50" />
+                      <p>Start a conversation with {activeContact.name}</p>
+                    </div>
+                  ) : (
+                    messages.map(m => {
+                      const isMe = (m.sender?._id || m.sender) === (user as any)?._id || (m.sender?._id || m.sender) === (user as any)?.id;
+                      return (
+                        <div key={m._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                          <div
+                            className={`max-w-md p-2.5 rounded text-xs ${
+                              isMe
+                                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-medium'
+                                : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
+                            }`}
+                          >
+                            <p>{m.message}</p>
+                            <span className="block text-[9px] opacity-70 mt-1 text-right font-mono tabular-nums">
+                              {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <form onSubmit={handleSendMessage} className="p-3 border-t border-neutral-200 dark:border-neutral-800 flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type message..."
+                    value={typedMessage}
+                    onChange={e => setTypedMessage(e.target.value)}
+                    className="input flex-1"
+                  />
+                  <button type="submit" className="btn-primary text-xs px-3">
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-neutral-400 text-xs">
+                Select a contact to begin messaging.
+              </div>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -232,16 +222,7 @@ function ChatContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col min-h-screen bg-background">
-        <Navbar />
-        <div className="flex-grow flex justify-center items-center">
-          <span className="text-xs text-gray-500 animate-pulse font-bold uppercase tracking-widest">
-            Resolving Neural Communication Streams...
-          </span>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<div className="p-8 text-center text-xs">Loading chat...</div>}>
       <ChatContent />
     </Suspense>
   );

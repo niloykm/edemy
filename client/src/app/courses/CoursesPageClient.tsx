@@ -8,9 +8,9 @@ import VideoPreviewModal from '@/components/VideoPreviewModal';
 import { Course, SEED_COURSES, ALL_COURSES } from '@/data/coursesData';
 import {
   Search, Filter, ChevronDown, BookOpen, SlidersHorizontal,
-  X, Video, MapPin, Sparkles, RotateCcw, ChevronLeft, ChevronRight, Check
+  X, RotateCcw, ChevronLeft, ChevronRight, Grid, List
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const CATEGORIES = [
   'All',
@@ -43,9 +43,9 @@ const RATING_OPTIONS = [
 
 const DURATION_OPTIONS = [
   { label: 'All Durations', minMinutes: 0, maxMinutes: 999999 },
-  { label: 'Short (< 10 hrs)', minMinutes: 0, maxMinutes: 600 },
-  { label: 'Medium (10–20 hrs)', minMinutes: 600, maxMinutes: 1200 },
-  { label: 'Long (20+ hrs)', minMinutes: 1200, maxMinutes: 999999 },
+  { label: 'Short (< 10h)', minMinutes: 0, maxMinutes: 600 },
+  { label: 'Medium (10–20h)', minMinutes: 600, maxMinutes: 1200 },
+  { label: 'Long (20h+)', minMinutes: 1200, maxMinutes: 999999 },
 ];
 
 const PAGE_SIZE_OPTIONS = [12, 24, 48];
@@ -61,7 +61,6 @@ export default function CoursesPageClient({
   const searchParams = useSearchParams();
   const typeParam = forceType || searchParams.get('type') || 'all';
 
-  // Ensure courses is never empty
   const rawCourses = useMemo(() => {
     if (initialCourses && initialCourses.length > 0) return initialCourses;
     return typeParam === 'all' ? ALL_COURSES : SEED_COURSES;
@@ -76,15 +75,13 @@ export default function CoursesPageClient({
   const [durationFilter, setDurationFilter] = useState(DURATION_OPTIONS[0]);
   const [sort, setSort] = useState('popular');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Video trailer modal state
   const [previewCourse, setPreviewCourse] = useState<Course | null>(null);
 
-  // Pagination state
+  // Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
-  // Dynamic filter counts calculator based on current courses pool
+  // Dynamic counts for facet badges
   const counts = useMemo(() => {
     let pool = [...courses];
     if (typeParam === 'online') {
@@ -203,16 +200,14 @@ export default function CoursesPageClient({
 
   const hasActiveFilters = category !== 'All' || level !== 'All Levels' || priceRange.label !== 'All Prices' || ratingFilter.label !== 'All Ratings' || durationFilter.label !== 'All Durations' || search.trim() !== '';
 
-  const FilterPanel = () => (
-    <div className="space-y-6">
-      {/* Category */}
+  const FilterRail = () => (
+    <div className="space-y-5 text-xs">
+      {/* Category Filter */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-200">
-            Category
-          </h3>
-        </div>
-        <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider text-[11px] mb-2">
+          Category / Track
+        </h3>
+        <div className="space-y-0.5 max-h-56 overflow-y-auto pr-1">
           {CATEGORIES.map(c => {
             const count = counts.catCounts[c] ?? 0;
             const isSelected = category === c;
@@ -220,16 +215,14 @@ export default function CoursesPageClient({
               <button
                 key={c}
                 onClick={() => { setCategory(c); setPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                 }`}
               >
                 <span className="truncate pr-2">{c}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
+                <span className="font-mono text-[10px] tabular-nums opacity-75">
                   {count}
                 </span>
               </button>
@@ -238,12 +231,12 @@ export default function CoursesPageClient({
         </div>
       </div>
 
-      {/* Level */}
-      <div>
-        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-          Experience Level
+      {/* Experience Level */}
+      <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider text-[11px] mb-2">
+          Skill Level
         </h3>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {LEVELS.map(l => {
             const count = counts.levelCounts[l] ?? 0;
             const isSelected = level === l;
@@ -251,80 +244,14 @@ export default function CoursesPageClient({
               <button
                 key={l}
                 onClick={() => { setLevel(l); setPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                 }`}
               >
                 <span>{l}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Price Range */}
-      <div>
-        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-          Price Range
-        </h3>
-        <div className="space-y-1">
-          {PRICE_RANGES.map(p => {
-            const count = counts.priceCounts[p.label] ?? 0;
-            const isSelected = priceRange.label === p.label;
-            return (
-              <button
-                key={p.label}
-                onClick={() => { setPriceRange(p); setPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>{p.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Rating */}
-      <div>
-        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-          Rating
-        </h3>
-        <div className="space-y-1">
-          {RATING_OPTIONS.map(r => {
-            const count = counts.ratingCounts[r.label] ?? 0;
-            const isSelected = ratingFilter.label === r.label;
-            return (
-              <button
-                key={r.label}
-                onClick={() => { setRatingFilter(r); setPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>{r.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  {count}
-                </span>
+                <span className="font-mono text-[10px] tabular-nums opacity-75">{count}</span>
               </button>
             );
           })}
@@ -332,11 +259,11 @@ export default function CoursesPageClient({
       </div>
 
       {/* Duration */}
-      <div>
-        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
+      <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider text-[11px] mb-2">
           Duration
         </h3>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {DURATION_OPTIONS.map(d => {
             const count = counts.durationCounts[d.label] ?? 0;
             const isSelected = durationFilter.label === d.label;
@@ -344,18 +271,41 @@ export default function CoursesPageClient({
               <button
                 key={d.label}
                 onClick={() => { setDurationFilter(d); setPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                 }`}
               >
                 <span>{d.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  {count}
-                </span>
+                <span className="font-mono text-[10px] tabular-nums opacity-75">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Price Range */}
+      <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider text-[11px] mb-2">
+          Pricing
+        </h3>
+        <div className="space-y-0.5">
+          {PRICE_RANGES.map(p => {
+            const count = counts.priceCounts[p.label] ?? 0;
+            const isSelected = priceRange.label === p.label;
+            return (
+              <button
+                key={p.label}
+                onClick={() => { setPriceRange(p); setPage(1); }}
+                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                  isSelected
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                }`}
+              >
+                <span>{p.label}</span>
+                <span className="font-mono text-[10px] tabular-nums opacity-75">{count}</span>
               </button>
             );
           })}
@@ -365,55 +315,45 @@ export default function CoursesPageClient({
       {hasActiveFilters && (
         <button
           onClick={clearFilters}
-          className="w-full py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-2 px-3 text-xs font-semibold text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer mt-4"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Reset All Filters</span>
+          <RotateCcw className="w-3 h-3" />
+          <span>Reset Filters</span>
         </button>
       )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
 
-      <div className="pt-16">
-        {/* Page Header / Hero Banner */}
-        <section className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-10">
+      <div className="pt-14">
+        {/* Compact Utility Header Bar */}
+        <section className="bg-white dark:bg-[#121215] border-b border-neutral-200 dark:border-neutral-800 py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 mb-3">
-                  {typeParam === 'online' ? (
-                    <><Video className="w-3.5 h-3.5" /> Live Cohorts & Webinars</>
-                  ) : typeParam === 'offline' ? (
-                    <><MapPin className="w-3.5 h-3.5" /> Physical Classroom Hubs</>
-                  ) : (
-                    <><Sparkles className="w-3.5 h-3.5" /> Complete Curriculum Library</>
-                  )}
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                    {typeParam === 'online' ? 'Real-Time Cohorts' : typeParam === 'offline' ? 'In-Person Hubs' : 'Complete Engineering Syllabus'}
+                  </span>
+                  <span className="text-neutral-400">•</span>
+                  <span className="text-xs font-mono tabular-nums text-neutral-500">
+                    {filtered.length} courses
+                  </span>
                 </div>
-
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                  {typeParam === 'online' ? (
-                    'Upcoming Live Online Classes'
-                  ) : typeParam === 'offline' ? (
-                    'In-Person Hands-on Workshops'
-                  ) : (
-                    'Production Engineering & AI Courses'
-                  )}
-                </h1>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2 max-w-2xl">
+                <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
                   {typeParam === 'online'
-                    ? 'Interactive real-time cohorts streamed directly to your browser with live code reviews and mentor office hours.'
+                    ? 'Live Classes & Cohorts'
                     : typeParam === 'offline'
-                    ? 'Hands-on hardware labs, system benchmarking, and collaborative pair programming in physical tech campuses.'
-                    : 'Battle-tested software engineering, distributed systems, and AI agent architectures designed for senior practitioners.'}
-                </p>
+                    ? 'In-Person Workshops & Labs'
+                    : 'Production Course Catalog'}
+                </h1>
               </div>
 
-              {/* Quick Tab Selector */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 self-start md:self-end">
+              {/* Top View Toggle Tabs */}
+              <div className="flex items-center gap-1 p-0.5 bg-neutral-100 dark:bg-neutral-800 rounded border border-neutral-200 dark:border-neutral-700 self-start md:self-auto text-xs">
                 {[
                   { href: '/courses', label: 'All Courses', key: 'all' },
                   { href: '/live-classes', label: 'Live Classes', key: 'online' },
@@ -424,10 +364,10 @@ export default function CoursesPageClient({
                     <button
                       key={tab.key}
                       onClick={() => router.push(tab.href)}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                         isActive
-                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 shadow-sm font-semibold'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
                       }`}
                     >
                       {tab.label}
@@ -437,80 +377,80 @@ export default function CoursesPageClient({
               </div>
             </div>
 
-            {/* Search Bar & Sorting Bar */}
-            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+            {/* Immediate Filter Rail / Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-2.5 items-stretch pt-2 border-t border-neutral-100 dark:border-neutral-800/80">
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <input
                   type="text"
-                  placeholder="Search by topic, instructor, stack (e.g. Next.js, LangGraph, Rust, K8s)..."
+                  placeholder="Filter by title, stack, instructor (e.g. Next.js, Raft, Rust, AWS)..."
                   value={search}
                   onChange={e => { setSearch(e.target.value); setPage(1); }}
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-white placeholder-slate-400 transition-all"
+                  className="w-full pl-9 pr-8 py-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 transition-colors"
                 />
                 {search && (
                   <button
                     onClick={() => { setSearch(''); setPage(1); }}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
 
               {/* Sort Dropdown */}
-              <div className="relative min-w-[200px]">
+              <div className="relative min-w-[180px]">
                 <select
                   value={sort}
                   onChange={e => setSort(e.target.value)}
-                  className="w-full appearance-none bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-xs font-semibold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full appearance-none bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md px-3 py-2 pr-8 text-xs font-medium text-neutral-800 dark:text-neutral-200 cursor-pointer focus:outline-none focus:border-neutral-900"
                 >
-                  <option value="popular">Sort: Most Popular</option>
-                  <option value="newest">Sort: Newest First</option>
+                  <option value="popular">Sort: Popular</option>
+                  <option value="newest">Sort: Newest</option>
                   <option value="rating">Sort: Highest Rated</option>
-                  <option value="price-low">Sort: Price (Low to High)</option>
-                  <option value="price-high">Sort: Price (High to Low)</option>
+                  <option value="price-low">Sort: Price (Asc)</option>
+                  <option value="price-high">Sort: Price (Desc)</option>
                 </select>
-                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
               </div>
 
               {/* Mobile Filter Toggle Button */}
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="lg:hidden flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs font-semibold text-neutral-700 dark:text-neutral-200 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800"
               >
-                <SlidersHorizontal className="w-4 h-4" />
+                <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Filters {hasActiveFilters && '(Active)'}</span>
               </button>
             </div>
           </div>
         </section>
 
-        {/* Content Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex gap-8 items-start">
-            {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-24">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <h2 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-indigo-500" />
-                    <span>Filter Catalog</span>
-                  </h2>
+        {/* Catalog Main Layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex gap-6 items-start">
+            {/* Desktop Left Filter Rail */}
+            <aside className="hidden lg:block w-56 flex-shrink-0 sticky top-20">
+              <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-md p-4 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+                  <span className="font-semibold text-xs text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                    <Filter className="w-3.5 h-3.5" />
+                    <span>Filter Rail</span>
+                  </span>
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                      className="text-[10px] font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 cursor-pointer"
                     >
-                      Clear
+                      Reset
                     </button>
                   )}
                 </div>
-                <FilterPanel />
+                <FilterRail />
               </div>
             </aside>
 
-            {/* Mobile Slide-over Drawer */}
+            {/* Mobile Drawer */}
             <AnimatePresence>
               {sidebarOpen && (
                 <div className="lg:hidden fixed inset-0 z-50 flex">
@@ -519,38 +459,38 @@ export default function CoursesPageClient({
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setSidebarOpen(false)}
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                    className="fixed inset-0 bg-black/60"
                   />
                   <motion.div
                     initial={{ x: '100%' }}
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="relative ml-auto w-full max-w-xs bg-white dark:bg-slate-900 h-full p-6 shadow-2xl overflow-y-auto flex flex-col z-10"
+                    transition={{ duration: 0.2 }}
+                    className="relative ml-auto w-full max-w-xs bg-white dark:bg-[#121215] h-full p-5 overflow-y-auto flex flex-col z-10 border-l border-neutral-200 dark:border-neutral-800"
                   >
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
-                      <h2 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-indigo-500" />
-                        <span>Filter Catalog</span>
-                      </h2>
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-neutral-800 mb-4">
+                      <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                        <Filter className="w-4 h-4" />
+                        <span>Filter Rail</span>
+                      </span>
                       <button
                         onClick={() => setSidebarOpen(false)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                        className="p-1 rounded text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
 
                     <div className="flex-1">
-                      <FilterPanel />
+                      <FilterRail />
                     </div>
 
-                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6">
+                    <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 mt-4">
                       <button
                         onClick={() => setSidebarOpen(false)}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer"
+                        className="btn-primary w-full text-xs"
                       >
-                        Show {filtered.length} Courses
+                        View {filtered.length} Courses
                       </button>
                     </div>
                   </motion.div>
@@ -558,67 +498,55 @@ export default function CoursesPageClient({
               )}
             </AnimatePresence>
 
-            {/* Course Grid Area */}
+            {/* Course Content Area */}
             <div className="flex-1 min-w-0">
-              {/* Count & Status Row */}
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+              {/* Density Bar */}
+              <div className="flex items-center justify-between text-xs text-neutral-500 mb-4">
+                <span className="tabular-nums">
                   {filtered.length === 0 ? (
-                    <span className="font-semibold text-slate-900 dark:text-white">0 courses found</span>
+                    '0 results'
                   ) : (
                     <>
-                      Showing{' '}
-                      <span className="font-extrabold text-slate-900 dark:text-white">
-                        {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, filtered.length)}
-                      </span>{' '}
-                      of{' '}
-                      <span className="font-extrabold text-slate-900 dark:text-white">
-                        {filtered.length}
-                      </span>{' '}
-                      production courses
-                      {category !== 'All' && (
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-1">
-                          in {category}
-                        </span>
-                      )}
+                      Showing <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">{(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, filtered.length)}</strong> of <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">{filtered.length}</strong> modules
                     </>
                   )}
-                </p>
+                </span>
 
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white font-medium flex items-center gap-1"
                   >
-                    <RotateCcw className="w-3 h-3" /> Reset Filters
+                    <RotateCcw className="w-3 h-3" /> Reset
                   </button>
                 )}
               </div>
 
-              {/* Course Card Grid or Empty State */}
+              {/* Actionable Empty State */}
               {filtered.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-4">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                    <BookOpen className="w-7 h-7" />
+                <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-10 text-center flex flex-col items-center justify-center space-y-3">
+                  <div className="w-10 h-10 rounded bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-500">
+                    <BookOpen className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                      No matching courses found
+                    <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      No courses found under this category
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-                      We couldn't find any courses matching your selected filter criteria or search query.
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 max-w-sm">
+                      Try relaxing your filter parameters or resetting the search query.
                     </p>
                   </div>
                   <button
                     onClick={clearFilters}
-                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer"
+                    className="btn-secondary text-xs mt-2"
                   >
-                    Clear All Filters
+                    Reset Filters
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {/* High-Density Course Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {paginated.map(course => (
                       <CourseCard
                         key={course.id || course._id}
@@ -628,18 +556,18 @@ export default function CoursesPageClient({
                     ))}
                   </div>
 
-                  {/* Pagination Controls */}
+                  {/* Tabular Pagination Rail */}
                   {totalPages > 1 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-10 border-t border-slate-200 dark:border-slate-800 mt-10">
-                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        <span>Items per page:</span>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-neutral-200 dark:border-neutral-800 mt-8 text-xs">
+                      <div className="flex items-center gap-2 text-neutral-500">
+                        <span>Rows per page:</span>
                         <select
                           value={pageSize}
                           onChange={e => {
                             setPageSize(Number(e.target.value));
                             setPage(1);
                           }}
-                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-1 px-2 text-xs font-semibold cursor-pointer"
+                          className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded px-2 py-1 font-mono tabular-nums text-xs"
                         >
                           {PAGE_SIZE_OPTIONS.map(opt => (
                             <option key={opt} value={opt}>
@@ -649,17 +577,17 @@ export default function CoursesPageClient({
                         </select>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <button
                           disabled={safePage === 1}
                           onClick={() => {
                             setPage(safePage - 1);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
-                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          className="pagination-btn"
                           aria-label="Previous Page"
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <ChevronLeft className="w-3.5 h-3.5" />
                         </button>
 
                         {[...Array(totalPages)].map((_, i) => {
@@ -671,11 +599,7 @@ export default function CoursesPageClient({
                                 setPage(p);
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                               }}
-                              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                safePage === p
-                                  ? 'bg-indigo-600 text-white shadow-sm'
-                                  : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                              }`}
+                              className={`pagination-btn ${safePage === p ? 'active' : ''}`}
                             >
                               {p}
                             </button>
@@ -688,10 +612,10 @@ export default function CoursesPageClient({
                             setPage(safePage + 1);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
-                          className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          className="pagination-btn"
                           aria-label="Next Page"
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

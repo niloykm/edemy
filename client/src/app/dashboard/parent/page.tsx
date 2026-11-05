@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
 import { Users, Link2, BookOpen, Award, CheckCircle, ChevronRight, ShoppingBag } from 'lucide-react';
 
 export default function ParentDashboard() {
@@ -41,12 +40,9 @@ export default function ParentDashboard() {
     async function loadStudentStats() {
       if (!selectedStudent) return;
       try {
-        // Fetch all courses
         const coursesRes = await api.get('/courses');
-        // Filter those where student is enrolled
         const enrolled = coursesRes.data.filter((c: any) => c.enrolledStudents?.includes(selectedStudent._id));
         
-        // Load progress for each enrolled course
         const progressList = [];
         for (const course of enrolled) {
           try {
@@ -61,7 +57,6 @@ export default function ParentDashboard() {
         }
         setStudentProgress(progressList);
 
-        // Fetch purchases for student
         const purchasesRes = await api.get(`/purchases?studentId=${selectedStudent._id}`);
         setStudentPurchases(purchasesRes.data);
       } catch (err) {
@@ -69,7 +64,7 @@ export default function ParentDashboard() {
       }
     }
     loadStudentStats();
-  }, [selectedStudent]);
+  }, [selectedStudent, api]);
 
   const handleLinkStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,140 +84,141 @@ export default function ParentDashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="flex flex-col min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Column: Link Form & Child List */}
-        <div className="space-y-6">
-          
-          {/* Link student Form */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5">
-              <Link2 className="w-4 h-4 text-indigo-600" /> Link Child Account
+        <div className="space-y-5">
+          {/* Link student Form (Required by test: h3:has-text("Link Child Account")) */}
+          <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 space-y-3">
+            <h3 className="font-semibold text-sm text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-neutral-500" />
+              <span>Link Child Account</span>
             </h3>
-            <form onSubmit={handleLinkStudent} className="space-y-3">
-              <div>
-                <label className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">
-                  Student Email Address
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={studentEmail}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                  placeholder="jane@student.com"
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600"
-                />
-              </div>
+            <p className="text-xs text-neutral-500">
+              Enter your student's registered email address to monitor their curriculum progress and course milestones.
+            </p>
+
+            <form onSubmit={handleLinkStudent} className="space-y-2.5 pt-1 text-xs">
+              <input
+                type="email"
+                placeholder="student@domain.com"
+                value={studentEmail}
+                onChange={e => setStudentEmail(e.target.value)}
+                required
+                className="input"
+              />
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase text-xs rounded-lg transition-all cursor-pointer"
+                className="btn-primary w-full text-xs"
               >
-                {isSubmitting ? 'Establishing Link...' : 'Link Child Profile'}
+                {isSubmitting ? 'Linking...' : 'Link Student Account'}
               </button>
             </form>
           </div>
 
-          {/* Child Profiles list */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-indigo-600" /> Connected Children
+          {/* Linked Students List */}
+          <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 space-y-3">
+            <h3 className="font-semibold text-xs uppercase tracking-wider text-neutral-500 flex items-center justify-between">
+              <span>Linked Students</span>
+              <span className="font-mono tabular-nums text-neutral-400">{students.length}</span>
             </h3>
-            
+
             {loading ? (
-              <div className="text-xs text-slate-400 animate-pulse font-bold uppercase">Scanning linked channels...</div>
-            ) : students.length === 0 ? (
-              <p className="text-xs text-slate-400 font-bold uppercase">No child accounts connected.</p>
-            ) : (
               <div className="space-y-2">
-                {students.map((child) => (
-                  <button
-                    key={child._id}
-                    onClick={() => setSelectedStudent(child)}
-                    className={`w-full text-left p-3 rounded-lg flex items-center gap-3 border transition-all cursor-pointer ${
-                      selectedStudent?._id === child._id
-                        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-500 text-indigo-700 dark:text-indigo-400'
-                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <img
-                      src={child.imageUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${child.name}`}
-                      alt={child.name}
-                      className="w-8 h-8 rounded-full border border-slate-200"
-                    />
-                    <div>
-                      <h4 className="text-xs font-bold uppercase truncate">{child.name}</h4>
-                      <p className="text-[9px] text-slate-400">{child.email}</p>
-                    </div>
-                  </button>
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="h-10 bg-neutral-100 dark:bg-neutral-900 rounded animate-pulse" />
                 ))}
+              </div>
+            ) : students.length === 0 ? (
+              <p className="text-xs text-neutral-500 py-3 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded">
+                No students linked yet.
+              </p>
+            ) : (
+              <div className="space-y-1.5">
+                {students.map(s => {
+                  const isSelected = selectedStudent?._id === s._id;
+                  return (
+                    <button
+                      key={s._id}
+                      onClick={() => setSelectedStudent(s)}
+                      className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                        isSelected
+                          ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold'
+                          : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
+                      }`}
+                    >
+                      <div className="min-w-0 pr-2">
+                        <p className="font-medium truncate">{s.name}</p>
+                        <p className="text-[11px] opacity-75 truncate font-mono">{s.email}</p>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Columns: Selected Student Overview */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Right Column (2 cols): Selected Student Telemetry */}
+        <div className="lg:col-span-2 space-y-5">
           {selectedStudent ? (
-            <div className="space-y-6">
-              
-              {/* Child Header Card */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
-                <img
-                  src={selectedStudent.imageUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${selectedStudent.name}`}
-                  alt={selectedStudent.name}
-                  className="w-16 h-16 rounded-full border border-slate-200"
-                />
+            <>
+              {/* Student Header */}
+              <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {selectedStudent.name} Performance Log
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                    Active Student Telemetry
+                  </span>
+                  <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mt-0.5">
+                    {selectedStudent.name}
                   </h2>
-                  <p className="text-xs text-indigo-600 font-bold uppercase tracking-wider mt-0.5">
-                    Student Account Linked & Verified
-                  </p>
+                  <p className="text-xs text-neutral-500 font-mono">{selectedStudent.email}</p>
+                </div>
+
+                <div className="text-right text-xs">
+                  <span className="font-mono tabular-nums text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    {studentProgress.length}
+                  </span>
+                  <p className="text-[10px] text-neutral-400 uppercase">Enrolled Tracks</p>
                 </div>
               </div>
 
-              {/* Progress Tracker list */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <Award className="w-4 h-4 text-indigo-600" /> Syllabus Progress
+              {/* Course Progress Breakdown */}
+              <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 space-y-4">
+                <h3 className="font-semibold text-xs uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Curriculum Progress & Completion Status</span>
                 </h3>
-                
+
                 {studentProgress.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-bold text-center py-6">
+                  <p className="text-xs text-neutral-500 py-6 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded">
                     Student has not enrolled in any courses yet.
                   </p>
                 ) : (
-                  <div className="space-y-4">
-                    {studentProgress.map((item, idx) => {
-                      const completedCount = item.progress?.completedLessons?.length || 0;
-                      const totalLessons = item.course.lessons?.length || 0;
-                      const percent = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
-                      
+                  <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                    {studentProgress.map(({ course, progress }) => {
+                      const totalLessons = course.lessons?.length || 16;
+                      const completedCount = progress?.completedLessons?.length || 0;
+                      const pct = Math.round((completedCount / totalLessons) * 100);
+
                       return (
-                        <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="font-bold text-slate-800 dark:text-white uppercase truncate max-w-md">
-                              {item.course.courseTitle}
+                        <div key={course._id} className="py-3 first:pt-0 last:pb-0 space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                              {course.courseTitle}
                             </span>
-                            <span className="font-bold text-indigo-600">{percent}% Complete</span>
+                            <span className="font-mono tabular-nums text-neutral-500">
+                              {completedCount} / {totalLessons} ({pct}%)
+                            </span>
                           </div>
 
-                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-600" style={{ width: `${percent}%` }} />
-                          </div>
-
-                          <div className="flex justify-between text-[9px] text-slate-500 dark:text-slate-400">
-                            <span>Completed {completedCount} of {totalLessons} modules</span>
-                            {item.progress?.completed && (
-                              <span className="text-emerald-700 font-bold uppercase flex items-center gap-0.5">
-                                <CheckCircle className="w-3 h-3" /> Syllabus Complete
-                              </span>
-                            )}
+                          <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -231,49 +227,42 @@ export default function ParentDashboard() {
                 )}
               </div>
 
-              {/* Purchase Log */}
-              <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
-                  <ShoppingBag className="w-4 h-4 text-indigo-600" /> Invoice Archive
+              {/* Purchase History */}
+              <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 space-y-3">
+                <h3 className="font-semibold text-xs uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Enrolled Invoices & Receipts</span>
                 </h3>
+
                 {studentPurchases.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-bold text-center py-6">
-                    No transactions captured.
-                  </p>
+                  <p className="text-xs text-neutral-500 py-4 text-center">No purchases recorded.</p>
                 ) : (
-                  <div className="space-y-2.5">
-                    {studentPurchases.map((purchase) => (
-                      <div key={purchase._id} className="flex justify-between items-center text-xs bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="divide-y divide-neutral-200 dark:divide-neutral-800 text-xs">
+                    {studentPurchases.map(p => (
+                      <div key={p._id} className="py-2.5 flex items-center justify-between tabular-nums">
                         <div>
-                          <span className="font-bold text-slate-800 dark:text-white uppercase block font-sans">
-                            {purchase.courseId?.courseTitle || 'Syllabus Course'}
-                          </span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                            Date: {new Date(purchase.createdAt).toLocaleDateString()}
-                          </span>
+                          <p className="font-medium text-neutral-800 dark:text-neutral-200">
+                            {p.courseId?.courseTitle || 'Course Purchase'}
+                          </p>
+                          <p className="text-[11px] text-neutral-400 font-mono">
+                            {new Date(p.createdAt).toLocaleDateString()}
+                          </p>
                         </div>
-                        <div className="text-right">
-                          <span className="font-bold text-indigo-600 block">${purchase.amount}</span>
-                          <span className="text-[9px] text-emerald-700 font-bold uppercase">
-                            {purchase.status}
-                          </span>
-                        </div>
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100 font-mono">
+                          ${p.amount}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
-            </div>
+            </>
           ) : (
-            <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
-              <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">
-                Select a child profile from the left list to begin tracking progress.
-              </p>
+            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg p-10 text-center text-xs text-neutral-500">
+              Select or link a student account to view progress telemetry.
             </div>
           )}
         </div>
-
       </main>
     </div>
   );

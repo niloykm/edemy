@@ -2,45 +2,63 @@ import React from 'react';
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
-      {/* Top Bar Skeleton */}
-      <div className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-6 flex items-center justify-between">
-        <div className="w-28 h-6 bg-slate-200 dark:bg-slate-800 rounded-md animate-pulse" />
-        <div className="hidden md:flex gap-4">
-          <div className="w-20 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-          <div className="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-          <div className="w-20 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100">
+      {/* Top Workstation Bar Skeleton */}
+      <div className="h-14 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#09090b] px-6 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-5 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          <div className="hidden md:flex gap-3">
+            <div className="w-16 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+            <div className="w-20 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+            <div className="w-16 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          </div>
         </div>
-        <div className="w-24 h-8 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          <div className="w-24 h-7 bg-neutral-200 dark:bg-neutral-800 rounded-md animate-pulse" />
+        </div>
       </div>
 
-      {/* Main Content Skeleton */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-        <div className="space-y-3">
-          <div className="w-48 h-8 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
-          <div className="w-96 max-w-full h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+      {/* Geometry-Matching Catalog & Player Skeleton Screen */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Header rail skeleton */}
+        <div className="space-y-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
+          <div className="w-40 h-3 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          <div className="w-72 h-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
         </div>
 
-        {/* Grid Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden animate-pulse flex flex-col"
-            >
-              <div className="aspect-video w-full bg-slate-200 dark:bg-slate-800" />
-              <div className="p-5 space-y-3 flex-1">
-                <div className="w-24 h-3 bg-slate-200 dark:bg-slate-800 rounded" />
-                <div className="w-full h-5 bg-slate-200 dark:bg-slate-800 rounded" />
-                <div className="w-3/4 h-5 bg-slate-200 dark:bg-slate-800 rounded" />
-                <div className="w-1/2 h-3 bg-slate-200 dark:bg-slate-800 rounded pt-2" />
-                <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <div className="w-16 h-6 bg-slate-200 dark:bg-slate-800 rounded" />
-                  <div className="w-20 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
+        {/* Catalog layout with filter rail and cards */}
+        <div className="flex gap-6 items-start">
+          {/* Left filter rail */}
+          <div className="hidden lg:block w-56 p-4 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121215] space-y-4">
+            <div className="w-24 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+            <div className="space-y-2">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-6 bg-neutral-100 dark:bg-neutral-900 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+
+          {/* Cards grid */}
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden flex flex-col"
+              >
+                <div className="aspect-video w-full bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+                <div className="p-4 space-y-3 flex-1">
+                  <div className="w-20 h-3 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  <div className="w-full h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  <div className="w-3/4 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800/80 flex justify-between">
+                    <div className="w-16 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                    <div className="w-20 h-4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

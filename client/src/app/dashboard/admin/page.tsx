@@ -6,31 +6,32 @@ import { Shield, ArrowUpRight } from 'lucide-react';
 
 export default function AdminRedirectPage() {
   useEffect(() => {
-    // Attempt automatic redirect to the new dedicated admin portal
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       window.location.href = 'http://localhost:3001';
     }, 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="flex flex-col min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
-      <main className="flex-grow flex flex-col justify-center items-center p-6 text-center space-y-6">
-        <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-full flex items-center justify-center animate-pulse">
-          <Shield className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+      <main className="flex-grow flex flex-col justify-center items-center p-6 text-center space-y-4">
+        <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg flex items-center justify-center">
+          <Shield className="w-6 h-6 text-neutral-700 dark:text-neutral-300" />
         </div>
-        <h2 className="text-xl font-black uppercase text-slate-900 dark:text-white tracking-widest">
-          ADMIN PANEL MOVED
+        <h2 className="text-base font-semibold uppercase text-neutral-900 dark:text-neutral-100 tracking-wider">
+          Admin Portal Moved
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold max-w-md tracking-wider">
-          The administration portal has been partitioned into a separate micro-frontend for security.
-          You are being redirected to the new port:
+        <p className="text-xs text-neutral-500 max-w-sm">
+          The administration workstation has been partitioned into a dedicated port.
+          Redirecting automatically:
         </p>
         <a
           href="http://localhost:3001"
-          className="px-6 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 rounded font-black text-xs uppercase tracking-widest flex items-center gap-1.5 transition-all"
+          className="btn-secondary text-xs flex items-center gap-1.5 font-mono"
         >
-          Open admin.edemy (Port 3001) <ArrowUpRight className="w-4 h-4" />
+          <span>Open admin portal (Port 3001)</span>
+          <ArrowUpRight className="w-3.5 h-3.5" />
         </a>
       </main>
     </div>

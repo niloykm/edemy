@@ -7,103 +7,52 @@ import CourseCard from '@/components/CourseCard';
 import VideoPreviewModal from '@/components/VideoPreviewModal';
 import { Course, SEED_COURSES } from '@/data/coursesData';
 import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
 import {
-  ArrowRight, Star, Users, BookOpen, Award, TrendingUp, CheckCircle,
-  Monitor, MapPin, FileText, Globe, Play, ChevronRight, Zap,
-  BarChart2, MessageSquare, Shield, Clock, Search, Cpu, Smartphone, Cloud, Palette, Megaphone
+  ArrowRight, Search, Globe, BarChart2, Cpu, Smartphone,
+  Cloud, Shield, Palette, Megaphone, Terminal, FileCode2,
+  CheckCircle2, Laptop
 } from 'lucide-react';
 
-const CATEGORIES = [
-  { name: 'Web Development', icon: Globe, count: '48 courses' },
-  { name: 'Data Science', icon: BarChart2, count: '36 courses' },
-  { name: 'Artificial Intelligence', icon: Cpu, count: '28 courses' },
-  { name: 'Mobile Development', icon: Smartphone, count: '22 courses' },
-  { name: 'Cloud & DevOps', icon: Cloud, count: '30 courses' },
-  { name: 'Cybersecurity', icon: Shield, count: '18 courses' },
-  { name: 'UI/UX Design', icon: Palette, count: '24 courses' },
-  { name: 'Digital Marketing', icon: Megaphone, count: '20 courses' },
+const TRACKS = [
+  { name: 'Distributed Systems', icon: Terminal, count: '14 tracks' },
+  { name: 'AI Engineering', icon: Cpu, count: '18 tracks' },
+  { name: 'Frontend Architecture', icon: Globe, count: '24 tracks' },
+  { name: 'Cloud Infrastructure', icon: Cloud, count: '16 tracks' },
+  { name: 'Database Reliability', icon: BarChart2, count: '12 tracks' },
+  { name: 'System Security', icon: Shield, count: '10 tracks' },
+  { name: 'Native & Mobile', icon: Smartphone, count: '15 tracks' },
+  { name: 'System Design', icon: FileCode2, count: '20 tracks' },
 ];
 
-const TESTIMONIALS = [
+const PLATFORM_SPECS = [
   {
-    name: 'Sarah Chen', role: 'Sample Success Story (React Bootcamp Alumnus)', rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop',
-    text: 'Edemy completely transformed my career. I landed my dream job 3 months after finishing the React Bootcamp. The offline lab sessions were incredibly effective.',
+    icon: Laptop,
+    title: 'Live Online Cohorts',
+    desc: 'Interactive live engineering cohorts with Google Meet integration, real-time code reviews, and recorded sessions.'
   },
   {
-    name: 'Marcus Johnson', role: 'Sample Success Story (Data Science Alumnus)', rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop',
-    text: 'The Data Science track is world-class. Real projects, live online sessions with tutors, and offline workshops that helped me build an actual portfolio. Best investment ever.',
+    icon: Terminal,
+    title: 'Physical In-Person Workshops',
+    desc: 'Hands-on hardware labs, system benchmarking, and collaborative pair programming at designated campus hubs.'
   },
   {
-    name: 'Priya Patel', role: 'Sample Success Story (UX Design Alumnus)', rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop',
-    text: 'I\'ve tried Udemy, Coursera — Edemy\'s hybrid approach (online + offline + PDF resources) is simply unmatched. The parent monitoring feature let my family support my learning journey.',
+    icon: FileCode2,
+    title: 'Technical Specs & Blueprints',
+    desc: 'Download verified architecture blueprints, RFC specs, whitepapers, and production code repositories directly.'
   },
+  {
+    icon: CheckCircle2,
+    title: 'Structured Progress Verification',
+    desc: 'Granular lesson-by-lesson completion records, module progress tracking, and parent/supervisor oversight.'
+  }
 ];
 
-const FEATURES = [
-  {
-    icon: Monitor, title: 'Live Online Classes', color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-950/30',
-    desc: 'Join live video sessions with Google Meet integration. Interactive, recorded, and available on-demand.',
-  },
-  {
-    icon: MapPin, title: 'Physical Classrooms', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-    desc: 'Attend real in-person workshops at our learning centers with hands-on labs and group projects.',
-  },
-  {
-    icon: FileText, title: 'PDF & Study Materials', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/30',
-    desc: 'Download comprehensive PDF resources, reference guides, and cheat sheets for every lesson.',
-  },
-  {
-    icon: BarChart2, title: 'Progress Tracking', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30',
-    desc: 'Track lesson completion, quiz scores, and certificates. Parents can monitor their child\'s learning.',
-  },
-  {
-    icon: MessageSquare, title: 'Tutor Direct Chat', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/30',
-    desc: 'Message instructors directly for personalized guidance, career advice, and code reviews.',
-  },
-  {
-    icon: Award, title: 'Verified Certificates', color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-50 dark:bg-cyan-950/30',
-    desc: 'Earn shareable completion certificates recognized by top employers in 50+ countries.',
-  },
+const METRICS = [
+  { value: '250+', label: 'Engineering Modules', detail: 'Curated by staff engineers' },
+  { value: '14,200', label: 'Active Practitioners', detail: 'Across 48 countries' },
+  { value: '98.4%', label: 'Completion Satisfaction', detail: 'Verified course ratings' },
+  { value: '100%', label: 'Reproducible Labs', detail: 'Containerized artifacts' },
 ];
-
-const STATS = [
-  { value: '100+', label: 'Expert Courses', icon: BookOpen },
-  { value: '12,000+', label: 'Active Students', icon: Users },
-  { value: '180+', label: 'Certified Tutors', icon: Award },
-  { value: '98%', label: 'Satisfaction Rate', icon: Star },
-];
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map(i => (
-        <Star
-          key={i}
-          className={`w-4 h-4 ${i <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}`}
-        />
-      ))}
-    </div>
-  );
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 40, scale: 0.98 },
-  visible: (i = 0) => ({ 
-    opacity: 1, 
-    y: 0, 
-    scale: 1, 
-    transition: { 
-      type: 'spring',
-      stiffness: 70,
-      damping: 15,
-      delay: i * 0.15 
-    } 
-  }),
-};
 
 export default function Home() {
   const { api } = useAuth();
@@ -114,7 +63,6 @@ export default function Home() {
   useEffect(() => {
     api.get('/courses').then(res => {
       if (Array.isArray(res.data) && res.data.length > 0) {
-        // Map backend courses
         const mapped = res.data.slice(0, 8).map((c: any) => ({
           ...c,
           id: String(c._id || c.id),
@@ -130,7 +78,7 @@ export default function Home() {
     }).catch(() => {
       // Fallback stays in place
     });
-  }, []);
+  }, [api]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,390 +88,228 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="flex flex-col min-h-screen bg-[#fafafa] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 transition-colors">
       <Navbar />
 
-      {/* ════════ HERO ════════ */}
-      <section className="hero-gradient text-white py-20 lg:py-28 relative overflow-hidden">
-        {/* Decorative blobs */}
-        {/* Decorative blobs */}
-        <motion.div 
-          animate={{
-            x: [0, 40, -20, 0],
-            y: [0, -40, 30, 0],
-            scale: [1, 1.15, 0.92, 1],
-          }}
-          transition={{
-            duration: 16,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl opacity-25 -translate-y-1/2 translate-x-1/2" 
-        />
-        <motion.div 
-          animate={{
-            x: [0, -30, 40, 0],
-            y: [0, 50, -30, 0],
-            scale: [1, 0.88, 1.12, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400 rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2" 
-        />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial="hidden" animate="visible"
-              className="space-y-8"
-            >
-              <motion.div variants={fadeUp} custom={0}>
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 text-sm font-medium text-indigo-200 backdrop-blur-sm">
-                  <Zap className="w-4 h-4" /> New: 100+ Courses Just Added
-                </span>
-              </motion.div>
-
-              <motion.h1 variants={fadeUp} custom={1} className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight">
-                Learn skills that
-                <span className="block text-indigo-300"> move you forward.</span>
-              </motion.h1>
-
-              <motion.p variants={fadeUp} custom={2} className="text-lg text-indigo-100 max-w-xl leading-relaxed">
-                Join 12,000+ students in live online classes, in-person workshops, and structured courses taught by industry experts.
-              </motion.p>
-
-              {/* Search Bar */}
-              <motion.form variants={fadeUp} custom={3} onSubmit={handleSearch} className="flex gap-0 w-full max-w-xl">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search for courses, topics, or skills..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 rounded-l-xl text-slate-900 bg-white text-sm font-medium focus:outline-none border-0"
-                  />
-                </div>
-                <button type="submit" className="px-6 py-4 bg-amber-500 hover:bg-amber-400 text-white font-bold rounded-r-xl transition-colors text-sm whitespace-nowrap">
-                  Search
-                </button>
-              </motion.form>
-
-              {/* Quick Links */}
-              <motion.div variants={fadeUp} custom={4} className="flex items-center gap-2 text-sm text-indigo-200">
-                <span className="font-medium">Popular:</span>
-                {['React', 'Python', 'Figma', 'AWS'].map(tag => (
-                  <Link key={tag} href={`/courses?search=${tag}`}
-                    className="px-3 py-1 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors">
-                    {tag}
-                  </Link>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            {/* Hero Right — Stats Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="hidden lg:block"
-            >
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-white/10 rounded-xl border border-white/10">
-                  <div className="w-12 h-12 rounded-lg bg-indigo-500/30 flex items-center justify-center text-2xl">🚀</div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">Next Live Session</p>
-                    <p className="text-indigo-200 text-xs">React 18 Deep Dive — Today at 14:00</p>
-                  </div>
-                  <span className="ml-auto bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">LIVE</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {STATS.map(s => (
-                    <div key={s.label} className="p-4 bg-white/10 rounded-xl border border-white/10 text-center">
-                      <div className="text-2xl font-extrabold text-white">{s.value}</div>
-                      <div className="text-xs text-indigo-200 mt-0.5">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2 p-3 bg-white/10 rounded-xl border border-white/10">
-                  <div className="flex -space-x-2">
-                    {['photo-1494790108377-be9c29b29330', 'photo-1507003211169-0a1dd7228f2d', 'photo-1438761681033-6461ffad8d80'].map((p, i) => (
-                      <img key={i} src={`https://images.unsplash.com/${p}?w=40&h=40&fit=crop`}
-                        className="w-8 h-8 rounded-full border-2 border-indigo-800 object-cover" alt="" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-indigo-100 font-medium">
-                    <span className="text-white font-bold">2,340 students</span> enrolled this week
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ════════ TRUSTED BY ════════ */}
-      <section className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 py-8">
+      {/* ════════ HEADER / HERO WORKPLANE ════════ */}
+      <section className="pt-24 pb-14 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121215]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">
-            Trusted by professionals at leading companies
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale dark:invert">
-            {['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'Netflix', 'Stripe', 'Airbnb'].map(c => (
-              <span key={c} className="text-lg font-black text-slate-700 dark:text-slate-300 tracking-tight">{c}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════ CATEGORIES ════════ */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <p className="section-eyebrow mb-2">
-                <TrendingUp className="w-4 h-4" /> Top Categories
-              </p>
-              <h2 className="section-title">Explore by subject</h2>
+          <div className="max-w-3xl space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">
+                Educational Workstation & LMS
+              </span>
+              <span className="text-[11px] text-neutral-500 font-mono">v2.4 Production Catalog</span>
             </div>
-            <Link href="/courses" className="hidden sm:flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold text-sm hover:underline">
-              Browse All Subjects <ChevronRight className="w-4 h-4" />
+
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
+              Learn skills that <span className="text-neutral-500 dark:text-neutral-400">move your engineering forward.</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl">
+              High-density learning environment for software practitioners: live cohorts, physical labs, and production-tested curriculums with downloadable blueprints and code artifacts.
+            </p>
+
+            {/* Direct Search Bar Rail */}
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 pt-2 max-w-2xl">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Search tracks by topic, instructor, or stack (e.g. Raft, Rust, K8s, Next.js)..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-md text-xs font-medium text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100"
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary py-2.5 px-5"
+              >
+                Search Catalog
+              </button>
+            </form>
+
+            {/* Quick Track Shortcuts */}
+            <div className="flex items-center gap-2 text-xs text-neutral-500 pt-1 flex-wrap">
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">Quick Tracks:</span>
+              {['Distributed Systems', 'React 19', 'Raft Consensus', 'Kubernetes', 'Python'].map(tag => (
+                <Link
+                  key={tag}
+                  href={`/courses?search=${encodeURIComponent(tag)}`}
+                  className="px-2 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:border-neutral-400 dark:hover:border-neutral-600 text-[11px] text-neutral-600 dark:text-neutral-400 transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════ REPUTATION / STANDARDS STRIP ════════ */}
+      <section className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/30 py-3.5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-neutral-500">
+            <span className="font-semibold uppercase tracking-wider text-[11px] text-neutral-600 dark:text-neutral-400">
+              Curriculum standards informed by production systems at:
+            </span>
+            <div className="flex flex-wrap items-center gap-6 font-mono font-medium text-neutral-600 dark:text-neutral-400">
+              {['Google', 'Netflix', 'AWS', 'Meta', 'Stripe', 'Cloudflare'].map(company => (
+                <span key={company} className="tracking-tight">{company}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════ CORE TRACKS ════════ */}
+      <section className="py-12 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                Curriculum Subjects
+              </h2>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Targeted specializations structured for senior engineers and engineering students.
+              </p>
+            </div>
+            <Link
+              href="/courses"
+              className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 hover:underline flex items-center gap-1"
+            >
+              <span>All Subjects</span> &rarr;
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {CATEGORIES.map((cat, i) => (
-              <motion.div
-                key={cat.name}
-                initial={{ opacity: 0, y: 30, scale: 0.96 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -6, scale: 1.03 }}
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 110, 
-                  damping: 14,
-                  default: { delay: i * 0.05 } 
-                }}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {TRACKS.map(track => (
+              <Link
+                key={track.name}
+                href={`/courses?category=${encodeURIComponent(track.name)}`}
+                className="p-3.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121215] hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors flex items-center justify-between group"
               >
-                <Link href={`/courses?category=${encodeURIComponent(cat.name)}`}
-                  className="group flex flex-col items-center p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-md hover:shadow-indigo-50/20 transition-all duration-300 text-center cursor-pointer">
-                  <cat.icon className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-3 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">{cat.name}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">{cat.count}</span>
-                </Link>
-              </motion.div>
+                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                  <track.icon className="w-4 h-4 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-medium text-xs text-neutral-800 dark:text-neutral-200 truncate group-hover:text-neutral-900 dark:group-hover:text-white">
+                      {track.name}
+                    </p>
+                    <p className="text-[10px] text-neutral-500 tabular-nums">
+                      {track.count}
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-neutral-200 transition-colors" />
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
       {/* ════════ FEATURED COURSES ════════ */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-900/30">
+      <section className="py-12 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121215]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="section-eyebrow mb-2">
-                <Star className="w-4 h-4" /> Most Popular
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                Featured Curriculums
+              </h2>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                High-density, modular engineering coursework ready for enrollment.
               </p>
-              <h2 className="section-title">Featured Courses</h2>
             </div>
-            <Link href="/courses" className="btn-secondary dark:bg-slate-800 dark:border-slate-700 dark:text-white text-sm">
-              All Courses <ArrowRight className="w-4 h-4" />
+            <Link
+              href="/courses"
+              className="btn-secondary text-xs"
+            >
+              Browse Complete Catalog ({featuredCourses.length})
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredCourses.map((course) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {featuredCourses.map(course => (
               <CourseCard
                 key={course.id || course._id}
                 course={course}
-                onPreview={(selected) => setPreviewCourse(selected)}
+                onPreview={selected => setPreviewCourse(selected)}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ════════ WHY EDEMY (Features Grid) ════════ */}
-      <section className="py-20">
+      {/* ════════ PLATFORM WORKSPACE SPECS ════════ */}
+      <section className="py-12 border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 space-y-4">
-            <p className="section-eyebrow justify-center">
-              <CheckCircle className="w-4 h-4" /> Why Choose Ndemy
-            </p>
-            <h2 className="section-title">Everything you need to succeed</h2>
-            <p className="section-subtitle mx-auto text-center">
-              We combine the flexibility of online learning with the depth of in-person instruction — creating a truly hybrid educational experience.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="card p-6 group"
-              >
-                <div className={`w-12 h-12 ${f.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <f.icon className={`w-6 h-6 ${f.color}`} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-2">{f.title}</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-2">{f.desc}</p>
-                {f.title === 'Progress Tracking' && (
-                  <Link href="/dashboard-preview" className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-bold inline-flex items-center gap-1">
-                    Try interactive preview &rarr;
-                  </Link>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════ STATS BAND ════════ */}
-      <section className="py-16 bg-gradient-to-r from-indigo-600 to-violet-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { value: '100+', label: 'Expert Courses', sub: 'Across 10+ subjects' },
-              { value: '12,000+', label: 'Active Students', sub: 'In 40+ countries' },
-              { value: '180+', label: 'Certified Tutors', sub: 'Industry professionals' },
-              { value: '98%', label: 'Satisfaction Rate', sub: 'Based on 5,000 reviews' },
-            ].map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl lg:text-5xl font-black text-white">{s.value}</div>
-                <div className="text-indigo-100 font-semibold mt-1">{s.label}</div>
-                <div className="text-indigo-200 text-sm mt-0.5">{s.sub}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════ TESTIMONIALS ════════ */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 space-y-4">
-            <p className="section-eyebrow justify-center">
-              <Star className="w-4 h-4" /> Student Reviews
-            </p>
-            <h2 className="section-title">Loved by learners worldwide</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 35, scale: 0.96 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -6, scale: 1.02 }}
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 90, 
-                  damping: 14,
-                  default: { delay: i * 0.08 }
-                }}
-                className="card p-6 space-y-4"
-              >
-                <StarRating rating={t.rating} />
-                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed italic">"{t.text}"</p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-950" />
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-white text-sm">{t.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════ CTA BANNER ════════ */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="p-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-2xl shadow-indigo-500/30"
-          >
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
-              Ready to start your learning journey?
+          <div className="mb-8">
+            <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+              Hybrid Workstation Architecture
             </h2>
-            <p className="text-indigo-100 mb-8 text-lg max-w-xl mx-auto">
-              Join 12,000+ students already learning. Enroll in any course today and get lifetime access.
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 max-w-xl">
+              Engineered to combine modern online self-pacing with intensive live mentoring and downloadable engineering artifacts.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/courses" className="px-8 py-4 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors text-base">
-                Browse Courses
-              </Link>
-              <Link href="/auth/login" className="px-8 py-4 bg-white/10 backdrop-blur text-white font-bold rounded-xl border border-white/30 hover:bg-white/20 transition-colors text-base">
-                Create Free Account
-              </Link>
-            </div>
-          </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {PLATFORM_SPECS.map(spec => (
+              <div
+                key={spec.title}
+                className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121215] space-y-2.5"
+              >
+                <div className="w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
+                  <spec.icon className="w-4 h-4" />
+                </div>
+                <h3 className="font-semibold text-xs text-neutral-900 dark:text-neutral-100">
+                  {spec.title}
+                </h3>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  {spec.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════ METRICS TABULAR OVERVIEW ════════ */}
+      <section className="py-10 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {METRICS.map(metric => (
+              <div key={metric.label} className="border-l-2 border-neutral-300 dark:border-neutral-700 pl-4 space-y-0.5">
+                <div className="text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100 tracking-tight">
+                  {metric.value}
+                </div>
+                <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                  {metric.label}
+                </div>
+                <div className="text-[11px] text-neutral-500">
+                  {metric.detail}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ════════ FOOTER ════════ */}
-      <footer className="bg-slate-900 text-slate-300 py-16">
+      <footer className="py-8 bg-white dark:bg-[#09090b] text-neutral-500 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <img src="/logo.png" alt="Ndemy" className="w-8 h-8 rounded-lg object-contain" />
-                <span className="text-white font-bold text-xl">Ndemy</span>
-              </div>
-              <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
-                A hybrid learning platform offering live classes, in-person workshops, and expert-curated courses.
-              </p>
-            </div>
-            {[
-              {
-                title: 'Platform',
-                links: [
-                  { label: 'Browse Courses', href: '/courses' },
-                  { label: 'Become a Tutor', href: '/auth/login' },
-                  { label: 'For Parents', href: '/auth/login' }
-                ]
-              }
-            ].map(col => (
-              <div key={col.title}>
-                <p className="text-white font-semibold text-sm mb-4">{col.title}</p>
-                <ul className="space-y-3">
-                  {col.links.map(l => (
-                    <li key={l.label}>
-                      <Link href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors">{l.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-500">© {new Date().getFullYear()} Ndemy Platforms Inc. All rights reserved.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-200 dark:border-neutral-800 pt-6">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-slate-500" />
-              <span className="text-xs text-slate-500">Demo Platform • Secure SSL Connection</span>
+              <img src="/logo.png" alt="Ndemy" className="w-5 h-5 rounded object-contain" />
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200">Ndemy Educational Workstation</span>
+              <span className="text-neutral-400">•</span>
+              <span>Production Platform</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <Link href="/courses" className="hover:text-neutral-900 dark:hover:text-neutral-200">Courses</Link>
+              <Link href="/live-classes" className="hover:text-neutral-900 dark:hover:text-neutral-200">Live Classes</Link>
+              <Link href="/workshops" className="hover:text-neutral-900 dark:hover:text-neutral-200">Workshops</Link>
+              <Link href="/auth/login" className="hover:text-neutral-900 dark:hover:text-neutral-200">Sign In</Link>
             </div>
           </div>
         </div>
